@@ -1,0 +1,47 @@
+
+rcw.txt:                        Default Reset Configuration Word for the COMX-P4080 in
+                                Hexadecimal format
+rcw.srec:                       Default Reset Configuration Word for the COMX-P4080 in 
+                                SREC format (for programming in flash with BDI3000)
+rcw_A-004510_A-004511.srec:     Default Reset Configuration Word for the COMX-P4080 + PBI
+                                commands for errata A-004510 and A-004511 in SREC format
+rcw_A-004510_A-004511.txt:      Default Reset Configuration Word for the COMX-P4080 + PBI
+                                commands for errata A-004510 and A-004511 in Hexadecimal
+                                format
+
+
+Errata A-004510 and A-004511
+----------------------------
+
+Reconfiguring the CoreNet Coherency Fabric for GEN errata A-004510 and A-004511 
+is performed as described in AN4493 Rev. E, 08/2012 using PBI commands. The PBI 
+commands are executed by the Pre-Boot Loader (PBL) therefore must be added after
+the Reset Configuration Word (RCW). To implement the workaround for  A-004510 and 
+A-004511, one must program the NOR flash with the rcw_A-004510_A-004511.txt or the 
+rcw_A-004510_A-004511.srec
+
+The PBI commands are as following:
+
+091380c0 000009c4
+09000010 00000000
+091380c0 000009c4
+09000014 00000000
+091380c0 000009c4
+09000018 81D00000
+091380c0 000009c4
+890B0E08 E0201800
+091380c0 000009c4
+890B0E18 E0201800
+091380c0 000009c4
+890B0E38 E0400000
+091380c0 000009c4
+890B0008 00900000
+091380c0 000009c4
+890B0E40 E00A0000
+091380c0 000009c4
+09018600 xx000000
+091380c0 000009c4
+09010F00 415E5000
+091380c0 000009c4
+09011F00 415E5000
+091380c0 000009c4

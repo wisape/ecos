@@ -1,0 +1,23 @@
+eCos - open-etech.com Repository
+================================
+
+This repository is a clone of http://hg-pub.ecoscentric.com/ecos/ from the 
+official eCos RTOS at http://ecos.sourceware.org/ with added features
+
+Added features
+--------------
+
+* Framebuffer device driver for R61523 LCD controller
+* libPNG 1.6.10rc1
+* JPEG Release 9a
+* PowerPC Freescale QorIQ HAL
+* P4080 COMX evaluation board support
+* Xilinx Microblaze HAL 
+* Board support for the Xilinx Microblaze on spartan3ADSP and spartan3AN
+* PowerPC Freescale Quicc III HAL
+* PowerPC SMP HAL
+* Board support for the Freescale MPC8572DS
+* Board support for the MINI STM32 board
+* Framebuffer device driver for ILI9325 LCD controller
+* Step Motor control device driver
+* GPIO IO layer

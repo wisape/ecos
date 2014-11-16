@@ -1,0 +1,250 @@
+# ==========================================================================
+#
+#   hal_powerpc_quicc3.cdl
+#
+#   Freescale Quicc III variant architectural HAL package configuration data
+#
+##==========================================================================
+## ####ECOSGPLCOPYRIGHTBEGIN####                                            
+## -------------------------------------------                              
+## This file is part of eCos, the Embedded Configurable Operating System.   
+## Copyright (C) 2008, 2009, 2010 Free Software Foundation, Inc.            
+##
+## eCos is free software; you can redistribute it and/or modify it under    
+## the terms of the GNU General Public License as published by the Free     
+## Software Foundation; either version 2 or (at your option) any later      
+## version.                                                                 
+##
+## eCos is distributed in the hope that it will be useful, but WITHOUT      
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    
+## FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License    
+## for more details.                                                        
+##
+## You should have received a copy of the GNU General Public License        
+## along with eCos; if not, write to the Free Software Foundation, Inc.,    
+## 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.            
+##
+## As a special exception, if other files instantiate templates or use      
+## macros or inline functions from this file, or you compile this file      
+## and link it with other works to produce a work based on this file,       
+## this file does not by itself cause the resulting work to be covered by   
+## the GNU General Public License. However the source code for this file    
+## must still be made available in accordance with section (3) of the GNU   
+## General Public License v2.                                               
+##
+## This exception does not invalidate any other reasons why a work based    
+## on this file might be covered by the GNU General Public License.         
+## -------------------------------------------                              
+## ####ECOSGPLCOPYRIGHTEND####                                              
+##==========================================================================
+######DESCRIPTIONBEGIN####
+#
+# Author(s):    ccoutand
+# Contributors: 
+# Date:         2009-11-01
+# Purpose:      
+# Description:  Variant package for Freescale PowerQUICC III architecture
+#
+#####DESCRIPTIONEND####
+#
+# ==========================================================================
+
+cdl_package CYGPKG_HAL_POWERPC_QUICC3 {
+    display       "PowerPC Freescale PowerQUICC III variant HAL"
+    parent        CYGPKG_HAL_POWERPC
+    requires      ( CYGHWR_HAL_POWERPC_BOOK_E==1 )
+    requires      ( CYGHWR_HAL_POWERPC_E500_CORE==1 )
+    hardware
+    include_dir   cyg/hal
+    define_header hal_powerpc_quicc3.h
+    description   "
+           The PowerPC Freescale PowerQUICC III variant HAL package provides 
+           generic support for this processor variant. It is also necessary to
+           select a specific target platform HAL package."
+
+    # Note: This should be sub-variant specific to reduce memory use.
+    define_proc {
+      puts $cdl_header "#define CYGHWR_HAL_VSR_TABLE (CYGHWR_HAL_POWERPC_VECTOR_BASE + 0x3000)"
+      puts $cdl_header "#define CYGHWR_HAL_VIRTUAL_VECTOR_TABLE (CYGHWR_HAL_VSR_TABLE + 0x200)"
+      puts $cdl_header "#define CYGHWR_HAL_SMP_CPU_SYNC_TABLE  (CYGHWR_HAL_POWERPC_VECTOR_BASE + 0x2800)"
+      puts $cdl_header "#define CYGHWR_HAL_SMP_CPU_SYNCF_TABLE (CYGHWR_HAL_POWERPC_VECTOR_BASE + 0x2900)"
+      puts $cdl_header "#define CYGHWR_HAL_SMP_CPU_ENTRY_TABLE (CYGHWR_HAL_POWERPC_VECTOR_BASE + 0x2a00)"
+      puts $cdl_header "#define CYGHWR_HAL_SMP_CPU_RUN_TABLE   (CYGHWR_HAL_POWERPC_VECTOR_BASE + 0x2b00)"
+      puts $cdl_header "#define CYGHWR_HAL_SMP_VSR_SYNCF_TABLE (CYGHWR_HAL_POWERPC_VECTOR_BASE + 0x2c00)"
+    }
+
+    implements CYGINT_HAL_POWERPC_VARIANT
+
+    cdl_option CYGPKG_HAL_POWERPC_MSBFIRST {
+        display    "CPU Variant big-endian"
+        calculated 1
+    }
+
+    define_proc {
+        puts $::cdl_header "#include <pkgconf/hal_powerpc.h>"
+    }
+
+    cdl_option CYGHWR_HAL_POWERPC_QUICC3 {
+        display          "Freescale PowerQUICC III variant in use"
+        flavor           data
+        default_value    {"MPC8572E"}
+        legal_values     {"MPC8572E" "MPC8569E" "MPC8568E"
+                          "MPC8560"  "MPC8555E" "MPC8548E"
+                          "MPC8543E" "MPC8541E" "MPC8540"
+                          "MPC8547E" "MPC8545E" "MPC8544E"
+                          "MPC8536E" "MPC8535E" "MPC8533E"
+                          "P1010"}
+        description      "The Freescale PowerQUICC III has several variants, 
+                          the main difference being the numbers of some peripherals,
+                          the size of L1 and L2 cache. The MPC8572E is a dual core
+                          version. The P1010 is from the QorIQ family but highly
+                          based on the PowerQUICC III architecture."
+    }
+
+    cdl_option CYGSEM_HAL_QUICC3_PIC_MIXED_MODE {
+        display    "Enable PowerQUICC III PIC in mixed mode"
+        default_value    1
+        description      "
+           The PowerQUICC III interrupt controller (PIC) can run in mixed 
+           or pass-through mode. This option will enable the PIC in mixed 
+           mode."
+    }
+
+    cdl_option CYGSEM_HAL_POWERPC_QUICC3_RTC_AUTORELOAD {
+        display       "Enable auto-reload of the e500 core RTC clock"
+        default_value 1
+        description   "
+            Enable Auto-reload of the decrementer after the period expired. 
+            This should be safe since the decrementer period is typically 10 ms."
+    }
+
+    cdl_option CYGSEM_HAL_POWERPC_QUICC3_HRESET_REQ_ENABLE {
+        display       "Enable CPU reset via HRESET_REQ signal"
+        default_value 1
+        description   "
+            Allow software to force assertion of HRESET_REQ. 
+            External hardware may then decide to issue the HW reset to the CPU."
+    }
+
+    cdl_option CYGSEM_HAL_QUICC3_WATCHDOG_ENABLE {
+        display    "Enable PowerQUICC III watch-dog interrupt"
+        default_value    0
+        description      "
+           This option enable the watch-dog interrupt. The watch-dog interrupt 
+           is a critical interrupt. The user is responsible for starting up the 
+           watch-dog and acknowledging the interrupt."
+    }
+
+    cdl_option CYGVAR_HAL_DEFINED_HAL_DELAY_US {
+        display    "Variant defined its own hal_delay_us()."
+        default_value    1
+        description      "
+           Enable this option to allow the delay routine to be re-defined in the
+           MPX85xx variant HAL."
+    }
+
+   cdl_option CYGNUM_HAL_VIRTUAL_VECTOR_CONSOLE_CHANNEL_BAUD {
+        display       "Baud rate for the HAL diagnostic port"
+        flavor        data
+        legal_values  { 50 75 110 "134_5" 150 200 300 600 1200 1800 2400 3600
+                      4800 7200 9600 14400 19200 38400 57600 115200 230400
+        }
+        default_value 38400
+        description   "
+            This option specifies the default baud rate (speed) for the 
+            HAL diagnostic port."
+   }
+
+   cdl_option CYGNUM_HAL_VIRTUAL_VECTOR_COMM_CHANNELS {
+       display      "Number of communication channels on the board"
+       flavor       data
+       calculated   1
+   }
+
+   cdl_option CYGNUM_HAL_VIRTUAL_VECTOR_DEBUG_CHANNEL {
+       display          "Debug serial port"
+       active_if        CYGPRI_HAL_VIRTUAL_VECTOR_DEBUG_CHANNEL_CONFIGURABLE
+       flavor data
+       legal_values     0 to CYGNUM_HAL_VIRTUAL_VECTOR_COMM_CHANNELS-1
+       default_value    0
+       description      "
+           The PowerQUICC III variants can have many serial ports. This option
+           chooses which port will be used to connect to a host running GDB."
+    }
+
+    cdl_option CYGNUM_HAL_VIRTUAL_VECTOR_CONSOLE_CHANNEL {
+        display          "Diagnostic serial port"
+        active_if        CYGPRI_HAL_VIRTUAL_VECTOR_CONSOLE_CHANNEL_CONFIGURABLE
+        flavor data
+        legal_values     0 to CYGNUM_HAL_VIRTUAL_VECTOR_COMM_CHANNELS-1
+        default_value    0
+        description      "
+           This option chooses which of the serial ports 
+           will be used for diagnostic output."
+    }
+
+    # This option is only used when USE_ROM_MONITOR is enabled - but
+    # it cannot be a sub-option to that option, since the code uses the
+    # definition in a preprocessor comparison.
+    cdl_option CYGNUM_HAL_VIRTUAL_VECTOR_ROM_DEBUG_CHANNEL {
+        display          "Debug serial port used by ROM monitor"
+        flavor data
+        legal_values     0 to CYGNUM_HAL_VIRTUAL_VECTOR_COMM_CHANNELS-1
+        default_value    0
+        description      "
+           This option chooses which of the serial ports 
+           will be used for GDB debugging."
+    }
+
+    compile var_intr.c var_misc.c variant.S e500.S quicc3_diag.c e500_secondary.S var_smp.c
+
+    make {
+        <PREFIX>/lib/resetvect.o : <PACKAGE>/src/Reset.S
+        $(CC) -Wp,-MD,resetvect.tmp $(INCLUDE_PATH) $(CFLAGS) -c -o $@ $<
+        @echo $@ ": \\" > $(notdir $@).deps
+        @tail -n +2 resetvect.tmp >> $(notdir $@).deps
+        @echo >> $(notdir $@).deps
+        @rm resetvect.tmp
+    }
+
+    cdl_component CYGPKG_HAL_POWERPC_QUICC3_OPTIONS {
+        display "PowerQUICC III build options"
+        flavor  none
+        description   "
+        Package specific build options including control over
+        compiler flags used only in building this package,
+        and details of which tests are built."
+
+
+        cdl_option CYGPKG_HAL_POWERPC_QUICC3_CFLAGS_ADD {
+            display "Additional compiler flags"
+            flavor  data
+            no_define
+            default_value { "" }
+            description   "
+                This option modifies the set of compiler flags for
+                building the PowerQUICC III HAL. These flags are used in addition
+                to the set of global flags."
+        }
+
+        cdl_option CYGPKG_HAL_POWERPC_QUICC3_CFLAGS_REMOVE {
+            display "Suppressed compiler flags"
+            flavor  data
+            no_define
+            default_value { "" }
+            description   "
+                This option modifies the set of compiler flags for
+                building the PowerQUICC III HAL. These flags are removed from
+                the set of global flags if present."
+        }
+
+        cdl_option CYGPKG_HAL_POWERPC_QUICC3_TESTS {
+            display "PowerQUICC III tests"
+            flavor  data
+            no_define
+            calculated { "" }
+            description   "
+                This option specifies the set of tests for the PowerQUICC III HAL."
+        }
+    }
+}

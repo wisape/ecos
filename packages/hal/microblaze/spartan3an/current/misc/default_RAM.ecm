@@ -1,0 +1,87 @@
+cdl_savefile_version 1;
+cdl_savefile_command cdl_savefile_version {};
+cdl_savefile_command cdl_savefile_command {};
+cdl_savefile_command cdl_configuration { description hardware template package };
+cdl_savefile_command cdl_package { value_source user_value wizard_value inferred_value };
+cdl_savefile_command cdl_component { value_source user_value wizard_value inferred_value };
+cdl_savefile_command cdl_option { value_source user_value wizard_value inferred_value };
+cdl_savefile_command cdl_interface { value_source user_value wizard_value inferred_value };
+
+cdl_configuration eCos {
+    description "" ;
+    template    default ;
+
+    package CYGPKG_KERNEL current ;
+};
+
+cdl_option CYGNUM_HAL_MICROBLAZE_SYSCLOCK_FREQ {
+    user_value 65000000
+}
+
+cdl_option CYGPKG_HAL_MICROBLAZE_IPC_BLOCK {
+    user_value XPS_INTC
+};
+
+cdl_option CYGPKG_HAL_MICROBLAZE_IPC_BLOCK_BASE {
+    user_value 0x81800000
+};
+
+cdl_option CYGPKG_HAL_MICROBLAZE_RTC_BLOCK {
+    user_value XPS_TIMER
+};
+
+cdl_option CYGPKG_HAL_MICROBLAZE_RTC_BLOCK_BASE {
+    user_value 0x83C00000
+};
+
+cdl_option CYGNUM_HAL_MICROBLAZE_RTC_IRQNUM {
+    user_value 0
+};
+
+cdl_option CYGPKG_HAL_MICROBLAZE_UART_BLOCK {
+    user_value XPS_UARTLITE
+};
+
+cdl_option CYGPKG_HAL_MICROBLAZE_UART0_BASE {
+    user_value 0x84000000
+};
+
+cdl_option CYG_HAL_STARTUP {
+    user_value RAM
+};
+
+cdl_option CYGSEM_HAL_USE_ROM_MONITOR {
+    user_value 0 GDB_stubs
+};
+
+cdl_option CYGDBG_HAL_DIAG_TO_DEBUG_CHAN {
+    user_value 0
+};
+
+cdl_component CYGSEM_HAL_PLF_ICACHE_ENABLE {
+    user_value 1
+};
+
+cdl_component CYGSEM_HAL_PLF_DCACHE_ENABLE {
+    user_value 1
+};
+
+cdl_component CYGPKG_DEVS_ETH_XILINX_TEMAC_ETH0 {
+    user_value 1
+};
+
+cdl_option CYGPKG_DEVS_ETH_XILINX_TEMAC_ETH0_DATA_BUS {
+    user_value LL_FIFO
+};
+
+cdl_option CYGPKG_DEVS_ETH_XILINX_TEMAC_ETH0_LL_FIFO_BLOCK_BASE {
+    user_value 0x81A00000
+};
+
+cdl_option CYGHWR_MEMORY_SDRAM_BASE_ADDRESS {
+    user_value   0x8C000000
+}
+
+cdl_option CYGPKG_DEVS_ETH_XILINX_TEMAC_BLOCK_BASE {
+    user_value   0x87000000
+}

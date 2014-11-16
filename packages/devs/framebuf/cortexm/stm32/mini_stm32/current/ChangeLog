@@ -1,0 +1,37 @@
+2014-05-26  Christophe Coutand  <ecos@hotmail.co.uk>
+
+    * src/ili9325_plf.c:
+    Updated gamma settings
+    Corrected entry mode register for landscape mode
+
+2011-07-01  Christophe Coutand  <ecos@hotmail.co.uk>
+
+    * cdl/mini_stm32_fb.cdl:
+    * include/ili9325_fb.inl:
+    * src/ili9325_plf.c:
+    * tests/mini_stm32_fb.c
+    New package -- ILI9325 LCD controller platform specific code (MINI STM32)
+
+//===========================================================================
+// ####GPLCOPYRIGHTBEGIN####                                                
+// -------------------------------------------                              
+// This file is part of eCos, the Embedded Configurable Operating System.   
+// Copyright (C) 2011 Free Software Foundation, Inc.                        
+//
+// This program is free software; you can redistribute it and/or modify     
+// it under the terms of the GNU General Public License as published by     
+// the Free Software Foundation; either version 2 or (at your option) any   
+// later version.                                                           
+//
+// This program is distributed in the hope that it will be useful, but      
+// WITHOUT ANY WARRANTY; without even the implied warranty of               
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU        
+// General Public License for more details.                                 
+//
+// You should have received a copy of the GNU General Public License        
+// along with this program; if not, write to the                            
+// Free Software Foundation, Inc., 51 Franklin Street,                      
+// Fifth Floor, Boston, MA  02110-1301, USA.                                
+// -------------------------------------------                              
+// ####GPLCOPYRIGHTEND####                                                  
+//===========================================================================

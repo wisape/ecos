@@ -1,0 +1,211 @@
+<!-- DOCTYPE reference  PUBLIC "-//OASIS//DTD DocBook V3.1//EN" -->
+
+<!-- {{{ Banner                         -->
+
+<!-- =============================================================== -->
+<!--                                                                 -->
+<!--     ili9325.sgml                                                -->
+<!--                                                                 -->
+<!--     ILI9325 LCD controller.                                     -->
+<!--                                                                 -->
+<!-- =============================================================== -->
+<!-- ####ECOSDOCCOPYRIGHTBEGIN####                                   -->
+<!-- =============================================================== -->
+<!-- Copyright (C) 2011 Free Software Foundation, Inc.               -->
+<!-- This material may be distributed only subject to the terms      -->
+<!-- and conditions set forth in the Open Publication License, v1.0  -->
+<!-- or later (the latest version is presently available at          -->
+<!-- http://www.opencontent.org/openpub/)                            -->
+<!-- Distribution of the work or derivative of the work in any       -->
+<!-- standard (paper) book form is prohibited unless prior           -->
+<!-- permission obtained from the copyright holder                   -->
+<!-- =============================================================== -->
+<!-- ####ECOSDOCCOPYRIGHTEND####                                     -->
+<!-- =============================================================== -->
+<!-- #####DESCRIPTIONBEGIN####                                       -->
+<!--                                                                 -->
+<!-- Author(s):   ccoutand                                           -->
+<!-- Contact(s):                                                     -->
+<!-- Date:        2011/11/25                                         -->
+<!-- Version:     0.01                                               -->
+<!--                                                                 -->
+<!-- ####DESCRIPTIONEND####                                          -->
+<!-- =============================================================== -->
+
+<!-- }}} -->
+<part id="framebuf-ili9325"><title>ILI9325 LCD controller</title>
+
+  <!-- {{{ ILI9325 LCD controller Support  -->
+  <chapter id="framebuf-ili9325-chapter">
+
+      <title>ILI9325 LCD controller Support</title>
+
+      <!-- {{{ Overview -->
+      <refentry id="ili9325-controller">
+
+      <refmeta>
+          <refentrytitle>IlI9325 controller</refentrytitle>
+      </refmeta>
+
+      <refnamediv>
+          <refname>Overview</refname>
+          <refpurpose>ILI9325 LCD controller Support</refpurpose>
+      </refnamediv>
+
+      <refsect1 id="ili9325-overview"><title>Overview</title>
+
+      <para>
+        The ILI9325 framebuffer package includes a framebuffer device driver 
+        for the ILI9325 LCD controller. The current driver only supports direct 
+        access to the controller internal GRAM. Future extension will support 
+        RAM buffer to reduce the number of IO access to the LCD controller. The
+        RAM buffer however is only useful for platform that includes enough RAM
+        memory, around 150KB for a display size and resolution of 320x240x16bits.
+
+        The ILI9325 framebuffer driver requires a platform specific package
+        that provides the necessary macros to access and initialize the 
+        controller. The driver is currently limited to a single framebuffer but 
+        can easily be updated to support multiple LCD displays. The framebuffer
+        driver works with pixel resolution of 16 bits.
+      </para>
+
+
+     </refsect1>
+     <!-- }}} -->
+
+      <!-- {{{ Platform specifics-->
+     <refsect1 id="ili9325-plf"><title>Platform specifics</title>
+
+     <para>
+        The ILI9325 framebuffer package requires a set of specific routines to be 
+        implemented at the platform level. These routines allow the driver to address
+        the controller by a method specific to the platform. Some platform may memory
+        mapped the controller, other may choose to use a serial interface (SPI). The 
+        driver requires:
+     </para>
+
+     <para>
+        A routine to initialize the controller (_b = CYG_FB_fb[x]_BASE, _w = width, _h = height)
+     </para>
+
+    <programlisting width=80>
+        hal_plf_lcd_controller_init(cyg_uint32 _b, cyg_uint16 _w, cyg_uint16 _h);
+     </programlisting>
+
+     <para>
+        A routine to write a value _v to an internal register _r of the controller:
+     </para>
+
+    <programlisting width=80>
+        hal_plf_lcd_write_reg( cyg_ili9325_lcd_t * , cyg_uint16 _r, cyg_uint16 _v);
+     </programlisting>
+
+     <para>
+        A routine to write _r to the Index Register (IR) of the controller:
+     </para>
+
+    <programlisting width=80>
+        hal_plf_lcd_write_ir( cyg_ili9325_lcd_t * , cyg_uint16 _r);
+     </programlisting>
+
+     <para>
+        A routine to write _v (pixel colour) to the internal RAM of the controller:
+     </para>
+
+    <programlisting width=80>
+        hal_plf_lcd_write_ram( cyg_ili9325_lcd_t * , cyg_uint16 _v);
+     </programlisting>
+
+     <para>
+        A routine to read the internal RAM of the controller:
+     </para>
+
+    <programlisting width=80>
+        cyg_uint16 hal_plf_lcd_read_ram( cyg_ili9325_lcd_t * );
+     </programlisting>
+
+     <para>
+        A routine to configure the backlight intensity (from 0 to 100%):
+     </para>
+
+     <programlisting width=80>
+        hal_plf_lcd_backlight( cyg_ili9325_lcd_t *, cyg_uint32 );
+     </programlisting>
+
+     <para>
+        All routines are declared in-line functions and must be accessible using the following 
+        macros that shall be defined in the platform specific package.
+     </para>
+
+     <programlisting width=80>
+        #define HAL_PLF_LCD_WRITE_REG     hal_plf_lcd_write_reg
+        #define HAL_PLF_LCD_WRITE_RAM     hal_plf_lcd_write_ram
+        #define HAL_PLF_LCD_WRITE_IR      hal_plf_lcd_write_ir
+        #define HAL_PLF_LCD_READ_RAM      hal_plf_lcd_read_ram
+        #define HAL_PLF_LCD_INIT          hal_plf_lcd_controller_init
+        #define HAL_PLF_LCD_BACKLIGHT     hal_plf_lcd_backlight
+     </programlisting>
+
+
+     <para>
+        The plaftorm specific code is included through the CDL CYGPKG_DEVS_PLF_FRAMEBUF_ILI9325_INL. 
+        The cyg_ili9325_lcd_t structure is platform dependent and is described in the next 
+        section.
+     </para>
+
+     </refsect1>
+     <!-- }}} -->
+
+      <!-- {{{ MINI STM32 platform example-->
+     <refsect1 id="ili9325-plf-example"><title>MINI STM32 platform example</title>
+
+      <para>
+        The <literal>cyg_ili9325_lcd_t</literal> structure is platform dependent. In the given example 
+        for the MINI STM32 board, the controller is memory mapped, the structure is defined as:
+      </para>
+
+     <programlisting width=80>
+        typedef struct cyg_ili9325_lcd_t
+        {
+           cyg_uint32   base;     /* base address */
+           cyg_uint32   width;    /* width */
+           cyg_uint32   height;   /* height */
+           cyg_uint32   pwm_io;   /* IO controlling the LCD backlight */
+        } cyg_ili9325_lcd_t;
+      </programlisting>
+     
+      <para>
+        The base address is the memory mapped address of the controller, <literal>width</literal> and 
+        <literal>height</literal> define the frame size and <literal>pwm_io</literal> is the IO controlling 
+        the LCD backlight intensity. For a controller accessible from a SPI interface, the structure would 
+        include a pointer to the SPI device instead of the base address of a memory mapped controller.
+      </para>
+
+      <para>
+        The platform specific package must define the framebuffer base: <literal>CYG_PLF_FB_fb0_BASE</literal>.
+        The framebuffer based is used to carry the LCD platform specific structure. In the MINI STM32 
+        example, <literal>CYG_PLF_FB_fb0_BASE</literal> is defined as follow:
+      </para>
+
+     <programlisting width=80>
+        // Declare LCD 0
+        cyg_ili9325_lcd_t cyg_ili9325_lcd_0;
+        #define CYG_PLF_FB_fb0_BASE        &#38;cyg_ili9325_lcd_0
+      </programlisting>
+
+      <para>
+        The address of the structure is passed as an argument of all functions. For a linear 
+        framebuffer, the address is the base address of the linear buffer.
+      </para>
+
+     </refsect1>
+     <!-- }}} -->
+
+     </refentry>
+
+   </chapter>
+   <!-- }}} -->
+
+</part>
+
+  

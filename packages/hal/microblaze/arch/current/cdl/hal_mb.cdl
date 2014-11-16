@@ -1,0 +1,292 @@
+# ====================================================================
+#
+#      hal_mb.cdl
+#
+#      Microblaze architectural HAL package configuration data
+#
+# ====================================================================
+## ####ECOSGPLCOPYRIGHTBEGIN####                                            
+## -------------------------------------------                              
+## This file is part of eCos, the Embedded Configurable Operating System.   
+## Copyright (C) 2011 Free Software Foundation, Inc.
+##
+## eCos is free software; you can redistribute it and/or modify it under    
+## the terms of the GNU General Public License as published by the Free     
+## Software Foundation; either version 2 or (at your option) any later      
+## version.                                                                 
+##
+## eCos is distributed in the hope that it will be useful, but WITHOUT      
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    
+## FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License    
+## for more details.                                                        
+##
+## You should have received a copy of the GNU General Public License        
+## along with eCos; if not, write to the Free Software Foundation, Inc.,    
+## 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.            
+##
+## As a special exception, if other files instantiate templates or use      
+## macros or inline functions from this file, or you compile this file      
+## and link it with other works to produce a work based on this file,       
+## this file does not by itself cause the resulting work to be covered by   
+## the GNU General Public License. However the source code for this file    
+## must still be made available in accordance with section (3) of the GNU   
+## General Public License v2.                                               
+##
+## This exception does not invalidate any other reasons why a work based    
+## on this file might be covered by the GNU General Public License.         
+## -------------------------------------------                              
+## ####ECOSGPLCOPYRIGHTEND####                                              
+# ====================================================================
+######DESCRIPTIONBEGIN####
+#
+# Author(s):      ccoutand
+# Original data:  jskov
+# Contributors:
+# Date:           2011-01-10
+#
+#####DESCRIPTIONEND####
+#
+# ====================================================================
+
+cdl_package CYGPKG_HAL_MICROBLAZE {
+    display  "Microblaze architecture"
+    parent        CYGPKG_HAL
+    hardware
+    include_dir   cyg/hal
+    define_header hal_mb.h
+    description   "
+        This package provides generic support for the Microblaze soft processor
+        architecture.
+        It is also necessary to select a variant and platform HAL package."
+
+    compile       hal_misc.c context.S mb_stub.c
+
+    cdl_interface CYGINT_HAL_MICROBLAZE_VARIANT {
+        display  "Number of variant implementations in this configuration"
+        no_define
+        requires 1 == CYGINT_HAL_MICROBLAZE_VARIANT
+    }
+
+    cdl_interface CYGINT_HAL_MICROBLAZE_RTC {
+        display  "Require HAL variant/platform to implement RTC clock"
+        no_define
+        requires 1 == CYGINT_HAL_MICROBLAZE_RTC
+    }
+
+
+    requires { CYGHWR_HAL_MICROBLAZE_BIGENDIAN implies
+        is_substr(CYGBLD_GLOBAL_CFLAGS,   " -mbig-endian ") &&
+        is_substr(CYGBLD_GLOBAL_LDFLAGS,  " -mbig-endian ") }
+    requires { !CYGHWR_HAL_MICROBLAZE_BIGENDIAN implies
+        !is_substr(CYGBLD_GLOBAL_CFLAGS,  " -mbig-endian ") &&
+        !is_substr(CYGBLD_GLOBAL_LDFLAGS, " -mbig-endian ") }
+
+    requires    { is_substr(CYGPKG_HAL_MICROBLAZE_CFLAGS_REMOVE, " -pg ") }
+
+    implements CYGINT_PROFILE_HAL_MCOUNT
+
+    # The "-o file" is a workaround for CR100958 - without it the
+    # output file would end up in the source directory under CygWin.
+    # n.b. grep does not behave itself under win32
+    make -priority 1 {
+        <PREFIX>/include/cyg/hal/mb_offsets.inc : <PACKAGE>/src/hal_mk_defs.c
+        $(CC) $(CFLAGS) $(INCLUDE_PATH) -Wp,-MD,mb_offsets.tmp -o hal_mk_defs.tmp -S $<
+        fgrep .equ hal_mk_defs.tmp | sed s/#// > $@
+        @echo $@ ": \\" > $(notdir $@).deps
+        @tail -n +2 mb_offsets.tmp >> $(notdir $@).deps
+        @echo >> $(notdir $@).deps
+        @rm mb_offsets.tmp hal_mk_defs.tmp
+    }
+
+    make {
+        <PREFIX>/lib/vectors.o : <PACKAGE>/src/vectors.S
+        $(CC) -Wp,-MD,vectors.tmp $(INCLUDE_PATH) $(CFLAGS) -c -o $@ $<
+        @echo $@ ": \\" > $(notdir $@).deps
+        @tail -n +2 vectors.tmp >> $(notdir $@).deps
+        @echo >> $(notdir $@).deps
+        @rm vectors.tmp
+    }
+
+    make {
+        <PREFIX>/lib/target.ld: <PACKAGE>/src/mb.ld
+        $(CC) -E -P -Wp,-MD,target.tmp -DEXTRAS=1 -xc $(INCLUDE_PATH) $(CFLAGS) -o $@ $<
+        @echo $@ ": \\" > $(notdir $@).deps
+        @tail -n +2 target.tmp >> $(notdir $@).deps
+        @echo >> $(notdir $@).deps
+        @rm target.tmp
+    }
+
+    cdl_interface CYGINT_HAL_MICROBLAZE_BIGENDIAN {
+        display "The platform and architecture supports Big Endian operation"
+    }
+
+    cdl_option CYGHWR_HAL_MICROBLAZE_BIGENDIAN {
+        display          "Use big-endian mode"
+        active_if        { CYGINT_HAL_MICROBLAZE_BIGENDIAN != 0 }
+        default_value    0
+        description      "
+            Use the CPU in big-endian mode."
+    }
+
+    cdl_component CYGPKG_HAL_SMP_SUPPORT {
+        display        "SMP support"
+        default_value   0
+        description    "SMP support is not yet available, option for testing only"
+
+        cdl_option CYGPKG_HAL_SMP_CPU_MAX {
+            display    "Max number of CPUs supported"
+            flavor      data
+            default_value 2
+        }
+    }
+
+    cdl_option CYGHWR_HAL_MICROBLAZE_ENABLE_MMU {
+        display       "Enable MMU"
+        default_value { !CYGHWR_HAL_MICROBLAZE_DISABLE_MMU }
+        description   "
+            Some platforms do not want the MMU enabled.(Not implemented yet, never?)"
+    }
+
+    cdl_option CYGHWR_HAL_MICROBLAZE_SUPPORT_EXCEPTION {
+        display        "Support exceptions"
+        default_value   1
+        flavor          bool
+        description   "
+            Enable Microblaze HAL to process exceptions. This options requires the
+            Microblaze core to generate exceptions. This option is required if the
+            application shall support ROM monitoring. Disable support to reduce 
+            code size."
+    }
+
+    cdl_option CYGHWR_HAL_MICROBLAZE_NEED_VECTORS {
+        display       "Exception vectors inclusion"
+        flavor         bool
+        description   "
+            If eCos can rely on the target environment to provide eCos compatible
+            vector code, there is no reason to include the additional data in 
+            application images. This option controls the inclusion of the vector
+            code. For RAM startup type, vectors shall not be included."
+        default_value { CYG_HAL_STARTUP != "RAM" ? 1 : 0 }
+    }
+
+    cdl_option CYGHWR_HAL_MICROBLAZE_MINIMUM_VECTORS {
+        display        "Skip reserved vectors"
+        default_value   1
+        active_if       { CYGHWR_HAL_MICROBLAZE_NEED_VECTORS }
+        flavor          bool
+        description    "
+            Exclude reserved vectors to reduce code size."
+    }
+
+    cdl_option CYGHWR_HAL_MICROBLAZE_BRAM_STORE_VECTORS {
+         display        "Vectors are stored in BRAM"
+         flavor          bool
+         default_value   1
+         description     "
+            Select this option when the design includes BRAM memory to store
+            the reset vectors and VSR lookup routines.
+            When using BRAM to save the reset vectors, the base address of the BRAM
+            must be set to 0x0 and the size of the BRAM must be 8KB minimum. Using 
+            BRAM to store the vectors is actually not practical as the vectors
+            must be added the FPGA bit file. This also means that for a safe
+            design, a restart of the processor must trigger a reload of the 
+            FPGA to ensure the vector section is refreshed. If not selected,
+            the FLASH memory will hold the vectors but, it is then mandatory for 
+            the flash to be placed at address 0x0."
+    }
+
+    cdl_option CYGSEM_HAL_MICROBLAZE_TRACE {
+        display        "Hardware Abstraction Layer Tracing"
+        default_value   0
+        flavor          bool
+        description   "
+            Enable debug trace at the architecture level."
+    }
+
+    cdl_option CYGHWR_HAL_MICROBLAZE_ENABLE_FSL {
+        display       "Enable FSL"
+        flavor         bool
+        default_value  0
+        description   "
+            Some platforms may have a Fast Simplex Link interface This
+            option includes the FSL macros required to read/write to the
+            FSL interface."
+    }
+
+    cdl_component CYGHWR_HAL_MICROBLAZE_SYSCLOCK {
+        display         "System Clock"
+        flavor           none
+        description     "System clock configuration."
+
+        cdl_option CYGNUM_HAL_MICROBLAZE_SYSCLOCK_FREQ {
+            display        "System clock frequency"
+            flavor          data
+            default_value   65000000
+            description   "
+                Select system clock frequency in Hz."
+        }
+
+        cdl_option CYGNUM_HAL_MICROBLAZE_LMB_FREQ {
+            display        "Local Memory Bus (LMB)"
+            flavor          data
+            default_value   { CYGNUM_HAL_MICROBLAZE_SYSCLOCK_FREQ }
+            description   "
+                Select LMB clock frequency in Hz."
+        }
+
+        cdl_option CYGNUM_HAL_MICROBLAZE_PLB_FREQ {
+            display        "Processor Local Bus (PLB)"
+            flavor          data
+            default_value   { CYGNUM_HAL_MICROBLAZE_SYSCLOCK_FREQ }
+            description   "
+                Select PLB clock frequency in Hz."
+        }
+    }
+
+    cdl_option CYGNUM_HAL_MICROBLAZE_COMMON_INTERRUPTS_STACK_SIZE {
+        display          "Total interrupt stack size"
+        flavor            data
+        calculated       { CYGPKG_HAL_SMP_SUPPORT ? ( CYGNUM_HAL_COMMON_INTERRUPTS_STACK_SIZE * CYGPKG_HAL_SMP_CPU_MAX ) : CYGNUM_HAL_COMMON_INTERRUPTS_STACK_SIZE }
+        description      "
+            Compute total interrupt stack size required in the system."
+    }
+
+    cdl_option CYGBLD_LINKER_SCRIPT {
+        display "Linker script"
+        flavor data
+        no_define
+        calculated  { "src/mb.ld" }
+    }
+
+    cdl_option CYGNUM_HAL_BREAKPOINT_LIST_SIZE {
+        display       "Number of breakpoints supported by the HAL."
+        flavor        data
+        default_value 8
+        description   "
+           This option determines the number of breakpoints supported by the HAL."
+    }
+
+    cdl_component CYGPKG_HAL_MICROBLAZE_OPTIONS {
+        display "Microblaze build options"
+        flavor  none
+        no_define
+        description   "
+        Package specific build options including control over
+        compiler flags used only in building this package,
+        and details of which tests are built."
+
+        cdl_option CYGPKG_HAL_MICROBLAZE_CFLAGS_REMOVE {
+            display "Suppressed compiler flags"
+            flavor  data
+            no_define
+            default_value { "-pg" }
+            description   "
+                This option modifies the set of compiler flags for
+                building the Microblaze HAL. These flags are removed from
+                the set of global flags if present."
+        }
+    }
+
+}
+
+# EOF hal_mb.cdl

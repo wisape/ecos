@@ -1,0 +1,74 @@
+2012-12-29  Christophe Coutand  <ccoutand@stmi.com>
+
+	* include/var_intr.h: Move CYGNUM_HAL_INTERRUPT_MAP_DECREMENTER and
+	CYGNUM_HAL_INTERRUPT_WATCHDOG_TIMER from PPC architecture HAL
+
+	* src/Reset.S: Add #include <pkgconf/system.h> to allow CYG_HAL_STARTUP_
+	to be visible
+
+	* cdl/hal_powerpc_mpc85xx.cdl: Change CYGHWR_HAL_POWERPC_E500 to 
+	CYGHWR_HAL_POWERPC_E500_CORE to match PPC architecture HAL
+
+2010-03-06 Christophe Coutand  <ccoutand@stmi.com>
+    * include/quicc3_diag.c: Remove include of io_serial_powerpc_quicc3.h
+
+2010-01-07 Christophe Coutand  <ccoutand@stmi.com>
+    * include/var_regs.h: Added PCI express registers
+
+2010-11-30 Christophe Coutand  <ccoutand@stmi.com>
+    * Move MPC85xx to quicc3
+
+2010-06-25  Christophe Coutand  <ccoutand@stmi.com>
+
+    * Added watchdog interrupt
+    * src/var_intr.c: 
+    * src/var_smp.c: 
+    * include/var_intr.h: 
+    * include/var_regs.h: 
+    * include/variant.inc:
+    * cdl/hal_powerpc_mpc85xx.cdl
+
+2010-04-27  Christophe Coutand  <ccoutand@stmi.com>
+
+    * Commit New HAL
+    * src/e500.S: 
+    * src/e500_secondary.S: 
+    * src/quicc3_diag.c: 
+    * src/Reset.S: 
+    * src/var_intr.c: 
+    * src/var_misc.c: 
+    * src/var_smp.c: 
+    * src/variant.S: 
+    * include/mpc85xx.h: 
+    * include/var_cache.h: 
+    * include/var_intr.h: 
+    * include/var_mem.h:
+    * include/var_regs.h: 
+    * include/var_smp.h:
+    * include/var_type.h: 
+    * include/variant.inc:
+    * cdl/hal_powerpc_mpc85xx.cdl
+
+//===========================================================================
+// ####GPLCOPYRIGHTBEGIN####                                                
+// -------------------------------------------                              
+// This file is part of eCos, the Embedded Configurable Operating System.   
+// Copyright (C) 1998, 1999, 2000, 2001, 2002 Free Software Foundation, Inc.
+//
+// This program is free software; you can redistribute it and/or modify     
+// it under the terms of the GNU General Public License as published by     
+// the Free Software Foundation; either version 2 or (at your option) any   
+// later version.                                                           
+//
+// This program is distributed in the hope that it will be useful, but      
+// WITHOUT ANY WARRANTY; without even the implied warranty of               
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU        
+// General Public License for more details.                                 
+//
+// You should have received a copy of the GNU General Public License        
+// along with this program; if not, write to the                            
+// Free Software Foundation, Inc., 51 Franklin Street,                      
+// Fifth Floor, Boston, MA  02110-1301, USA.                                
+// -------------------------------------------                              
+// ####GPLCOPYRIGHTEND####                                                  
+//===========================================================================

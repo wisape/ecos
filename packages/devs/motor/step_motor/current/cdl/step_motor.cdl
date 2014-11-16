@@ -1,0 +1,171 @@
+# ====================================================================
+#
+#      step_motor.cdl
+#
+#      eCos Step Motor configuration data
+#
+# ====================================================================
+## ####ECOSGPLCOPYRIGHTBEGIN####                                            
+## -------------------------------------------                              
+## This file is part of eCos, the Embedded Configurable Operating System.   
+## Copyright (C) 2008 Free Software Foundation, Inc.                        
+##
+## eCos is free software; you can redistribute it and/or modify it under    
+## the terms of the GNU General Public License as published by the Free     
+## Software Foundation; either version 2 or (at your option) any later      
+## version.                                                                 
+##
+## eCos is distributed in the hope that it will be useful, but WITHOUT      
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    
+## FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License    
+## for more details.                                                        
+##
+## You should have received a copy of the GNU General Public License        
+## along with eCos; if not, write to the Free Software Foundation, Inc.,    
+## 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.            
+##
+## As a special exception, if other files instantiate templates or use      
+## macros or inline functions from this file, or you compile this file      
+## and link it with other works to produce a work based on this file,       
+## this file does not by itself cause the resulting work to be covered by   
+## the GNU General Public License. However the source code for this file    
+## must still be made available in accordance with section (3) of the GNU   
+## General Public License v2.                                               
+##
+## This exception does not invalidate any other reasons why a work based    
+## on this file might be covered by the GNU General Public License.         
+## -------------------------------------------                              
+## ####ECOSGPLCOPYRIGHTEND####                                              
+# ====================================================================
+######DESCRIPTIONBEGIN####
+#
+# Author(s):      ccoutand
+# Contributors:   
+# Date:           2010-10-28
+#
+#####DESCRIPTIONEND####
+#
+# ====================================================================
+
+
+cdl_package CYGPKG_DEVS_STEP_MOTOR {
+    display     "Step Motor hardware interface"
+    
+    requires    CYGPKG_IO_GPIO
+    
+    description " 
+           This package provides a generic step motor interface."
+           
+    include_dir cyg/io
+    
+    compile  -library=libextras.a step_motor.c
+    
+    define_proc {
+      puts $::cdl_system_header "#define CYGDAT_DEVS_STEP_MOTOR_INL <cyg/io/step_motor.inl>"
+    }
+    
+    cdl_interface CYGINT_DEVS_STEP_MOTOR {
+        display "Number of Step Motor interface"
+    }  
+   
+    cdl_option CYGPKG_DEVS_STEP_MOTOR_DEBUG_LEVEL {
+         display "Driver debug output level"
+         flavor  data
+         legal_values {0 1 2}
+         default_value 0
+         description   "
+             This option specifies the level of debug data output by
+             the Step Motor device driver. A value of 0 signifies
+             no debug data output; 1 signifies normal debug data
+             output. If an overrun occurred then this can only be
+             detected by debug output messages."         
+    }
+    
+                
+    # Support up to 1 Step Motor interface
+    for { set ::interface 0 } { $::interface < 1 } { incr ::interface } {  
+    
+        cdl_component CYGPKG_DEVS_STEP_MOTOR[set ::interface] {
+            display        "Access step motor interface [set ::interface]"
+            flavor          bool
+            default_value   [set ::interface] == 0
+            implements      CYGINT_DEVS_STEP_MOTOR
+            description "
+                If the application needs to access the step motor
+                interface [set ::interface] via an eCos step motor driver then
+                this option should be enabled."
+     
+            cdl_option CYGDAT_DEVS_STEP_MOTOR[set ::interface]_NAME {
+                display "Device name"
+                flavor      data
+                default_value   [format {"\"/dev/motor%d\""} $::interface]
+                description "
+                    This option controls the name that an eCos application
+                    should use to access this device via cyg_io_lookup(),
+                    open(), or similar calls."
+            }
+
+            cdl_option CYGDAT_DEVS_STEP_MOTOR[set ::interface]_IO_A {
+                display "IO A configuration"
+                flavor  data
+                default_value 1
+                description "
+                    This option specify the IO number controlling signal A"
+            }
+            
+            cdl_option CYGDAT_DEVS_STEP_MOTOR[set ::interface]_IO_B {
+                display "IO B configuration"
+                flavor  data
+                default_value 1
+                description "
+                    This option specify the IO number controlling signal B"
+            }
+ 
+             cdl_option CYGDAT_DEVS_STEP_MOTOR[set ::interface]_IO_A_BAR {
+                display "IO A BAR configuration"
+                flavor  data
+                default_value 1
+                description "
+                    This option specify the IO number controlling signal !A"
+            }
+  
+            cdl_option CYGDAT_DEVS_STEP_MOTOR[set ::interface]_IO_B_BAR {
+                display "IO B BAR configuration"
+                flavor  data
+                default_value 1
+                description "
+                    This option specify the IO number controlling signal !B"
+            }                                   
+            cdl_option CYGDAT_DEVS_STEP_MOTOR[set ::interface]_MAX_SPEED {
+                display "Maximum rotation speed"
+                flavor  data
+                legal_values  1 to 100
+                default_value 1
+                description "
+                    This option controls the maximum rotation speed of the motor 
+                    in tr/min"
+            }
+            
+            cdl_option CYGDAT_DEVS_STEP_MOTOR[set ::interface]_STEPS {
+                display "Number of steps"
+                flavor  data
+                legal_values  1 to 1000
+                default_value 360
+                description "
+                    This option specify the number of steps to complete a full
+                    rotation"
+            }                        
+        } 
+    }
+    
+    cdl_option CYGPKG_DEVS_STEP_MOTOR_TESTS {
+        display "Tests for Step Motor Interface"
+        flavor  data
+        no_define
+        calculated { "tests/step_motor_test" }
+        description   "
+            This option specifies the set of tests for the
+            Step Motor IO interface."
+    }
+
+}

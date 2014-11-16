@@ -1,0 +1,8 @@
+
+eCos does not have any MMU support, therefore, the 36 bits physical addressing 
+possibility of the e500mc core cannot be used. In this HAL we stay in 32 bits 
+physical addressing.
+
+
+The ROM startup type means booting from NOR flash. Booting from the NAND flash 
+is not supported.

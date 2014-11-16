@@ -1,0 +1,108 @@
+# ====================================================================
+#
+#      libjpeg.cdl
+#
+#      libjpeg is the JPEG library from the Independent JPEG Group's free 
+#      JPEG software
+#
+# ====================================================================
+## ####ECOSGPLCOPYRIGHTBEGIN####                                            
+## -------------------------------------------                              
+## This file is part of eCos, the Embedded Configurable Operating System.   
+## Copyright (C) 2014 Free Software Foundation, Inc.                  
+##
+## eCos is free software; you can redistribute it and/or modify it under    
+## the terms of the GNU General Public License as published by the Free     
+## Software Foundation; either version 2 or (at your option) any later      
+## version.                                                                 
+##
+## eCos is distributed in the hope that it will be useful, but WITHOUT      
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    
+## FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License    
+## for more details.                                                        
+##
+## You should have received a copy of the GNU General Public License        
+## along with eCos; if not, write to the Free Software Foundation, Inc.,    
+## 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.            
+##
+## As a special exception, if other files instantiate templates or use      
+## macros or inline functions from this file, or you compile this file      
+## and link it with other works to produce a work based on this file,       
+## this file does not by itself cause the resulting work to be covered by   
+## the GNU General Public License. However the source code for this file    
+## must still be made available in accordance with section (3) of the GNU   
+## General Public License v2.                                               
+##
+## This exception does not invalidate any other reasons why a work based    
+## on this file might be covered by the GNU General Public License.         
+## -------------------------------------------                              
+## ####ECOSGPLCOPYRIGHTEND####                                              
+# ====================================================================
+######DESCRIPTIONBEGIN####
+#
+# Author(s):      ccoutand
+# Original data:  http://www.ijg.org/
+#                 Version:
+#                 release 9a
+# Contributors:
+# Date:           2014-05-29
+#
+#####DESCRIPTIONEND####
+#
+# ====================================================================
+
+cdl_package CYGPKG_LIBJPEG {
+    display     "JPEG graphical library"
+    requires    CYGPKG_LIBC_STDIO
+    requires    CYGPKG_LIBC_STDLIB
+    requires    CYGPKG_LIBC_STRING
+    requires    CYGPKG_ISOINFRA
+
+    include_dir cyg/libjpeg
+
+    compile cdjpeg.c cjpeg.c ckconfig.c djpeg.c jaricom.c jcapimin.c jcapistd.c
+    compile jcarith.c jccoefct.c jccolor.c jcdctmgr.c jchuff.c jcinit.c jcmainct.c
+    compile jcmarker.c jcmaster.c jcomapi.c jcparam.c jcprepct.c jcsample.c jctrans.c
+    compile jdapimin.c jdapistd.c jdarith.c jdatadst.c jdatasrc.c jdcoefct.c jdcolor.c
+    compile jddctmgr.c jdhuff.c jdinput.c jdmainct.c jdmarker.c jdmaster.c jdmerge.c
+    compile jdpostct.c jdsample.c jdtrans.c jerror.c jfdctflt.c jfdctfst.c jfdctint.c
+    compile jidctflt.c jidctfst.c jidctint.c jmemansi.c jmemmgr.c jmemname.c jmemnobs.c
+    compile jpegtran.c jquant1.c jquant2.c jutils.c rdbmp.c rdcolmap.c rdgif.c rdjpgcom.c
+    compile rdppm.c rdrle.c rdswitch.c rdtarga.c transupp.c wrbmp.c wrgif.c wrjpgcom.c
+    compile wrppm.c wrrle.c wrtarga.c
+
+    description "
+        This package includes support for the JPEG release 9a"
+
+    cdl_component CYGPKG_LIBJPEG_OPTIONS {
+        display       "libJPEG library build options"
+        flavor        none
+        description   "
+        Package specific build options including control over
+        compiler flags used only in building this package,
+        and details of which tests are built."
+
+        cdl_option CYGPKG_LIBJPEG_CFLAGS_ADD {
+            display "Additional compiler flags"
+            flavor  data
+            no_define
+            default_value { "-D__ECOS__" }
+            description   "
+                This option modifies the set of compiler flags for
+                building this package. These flags are used in addition
+                to the set of global flags."
+        }
+
+        cdl_option CYGPKG_LIBJPEG_CFLAGS_REMOVE {
+            display "Suppressed compiler flags"
+            flavor  data
+            no_define
+            default_value { "" }
+            description   "
+                This option modifies the set of compiler flags for
+                building this package. These flags are removed from
+                the set of global flags if present."
+        }
+    }
+
+}

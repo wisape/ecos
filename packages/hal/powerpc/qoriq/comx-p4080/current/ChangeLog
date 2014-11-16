@@ -1,0 +1,56 @@
+2013-03-25  Christophe Coutand  <ccoutand@stmi.com>
+
+    * misc/net_RAM.ecm: Added
+    * misc/default_RAM.ecm: Added
+
+2012-07-20  Christophe Coutand  <ccoutand@stmi.com>
+
+    * Commit New HAL
+    * src/hal_aux.c: 
+    * src/hal_diag.c: 
+    * src/comx-p4080.S: 
+    * misc/reboot_ROM.ecm:
+    * misc/reboot_ROMRAM.ecm:
+    * misc/reboot_ROMRAM_smp.ecm:
+    * include/hal_diag.h: 
+    * include/plf_cache.h: 
+    * include/plf_intr.h: 
+    * include/plf_mem.h:
+    * include/plf_regs.h: 
+    * include/plf_stub.h:
+    * include/pkgconf/mlt_powerpc_comx_p4080_rom.h: 
+    * include/pkgconf/mlt_powerpc_comx_p4080_rom.ldi: 
+    * include/pkgconf/mlt_powerpc_comx_p4080_ram.h: 
+    * include/pkgconf/mlt_powerpc_comx_p4080_ram.ldi: 
+    * include/pkgconf/mlt_powerpc_comx_p4080_romram.h: 
+    * include/pkgconf/mlt_powerpc_comx_p4080_romram.ldi: 
+    * doc/rcw_A-004510_A-004511.srec
+    * doc/rcw_A-004510_A-004511.txt
+    * doc/rcw.srec
+    * doc/rcw.txt
+    * doc/README
+    * cdl/hal_powerpc_comx_p4080.cdl
+
+//===========================================================================
+// ####GPLCOPYRIGHTBEGIN####                                                
+// -------------------------------------------                              
+// This file is part of eCos, the Embedded Configurable Operating System.   
+// Copyright (C) 2012 Free Software Foundation, Inc.
+//
+// This program is free software; you can redistribute it and/or modify     
+// it under the terms of the GNU General Public License as published by     
+// the Free Software Foundation; either version 2 or (at your option) any   
+// later version.                                                           
+//
+// This program is distributed in the hope that it will be useful, but      
+// WITHOUT ANY WARRANTY; without even the implied warranty of               
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU        
+// General Public License for more details.                                 
+//
+// You should have received a copy of the GNU General Public License        
+// along with this program; if not, write to the                            
+// Free Software Foundation, Inc., 51 Franklin Street,                      
+// Fifth Floor, Boston, MA  02110-1301, USA.                                
+// -------------------------------------------                              
+// ####GPLCOPYRIGHTEND####                                                  
+//===========================================================================

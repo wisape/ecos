@@ -1,0 +1,30 @@
+# ====================================================================
+#
+#      flash_comx-p4080.cdl
+#
+#      FLASH memory - Hardware support on Emerson COMX-P4080 platform
+# ====================================================================
+cdl_package CYGPKG_DEVS_FLASH_COMX_P4080 {
+    display       "Emerson COMX-P4080 (QorIQ P4080) FLASH memory support"
+
+    parent        CYGPKG_IO_FLASH
+    active_if     CYGPKG_IO_FLASH
+    requires      CYGPKG_HAL_POWERPC_COMX_P4080
+
+    implements    CYGINT_DEVS_FLASH_INTEL_VARIANTS
+
+    include_dir   cyg/io
+    compile       comx-p4080_flash.c
+
+    # Arguably this should do in the generic package
+    # but then there is a logic loop so you can never enable it.
+    cdl_interface CYGINT_DEVS_FLASH_AMD_AM29XXXXX_REQUIRED {
+        display   "Generic AMD flash driver required"
+    }
+
+    implements    CYGINT_DEVS_FLASH_AMD_AM29XXXXX_REQUIRED
+    requires      CYGHWR_DEVS_FLASH_AMD_S29GL01GP
+
+}
+
+# EOF flash_comx-p4080.cdl
