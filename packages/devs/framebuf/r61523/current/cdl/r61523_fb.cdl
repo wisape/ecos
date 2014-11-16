@@ -1,0 +1,176 @@
+# ====================================================================
+#
+#      r61523_fb.cdl
+#
+#      Framebuffer device driver for the r61523 LCD controller.
+#
+# ====================================================================
+# ####ECOSGPLCOPYRIGHTBEGIN####                                             
+# -------------------------------------------                               
+# This file is part of eCos, the Embedded Configurable Operating System.    
+# Copyright (C) 2014 Free Software Foundation, Inc.
+#
+# eCos is free software; you can redistribute it and/or modify it under     
+# the terms of the GNU General Public License as published by the Free      
+# Software Foundation; either version 2 or (at your option) any later       
+# version.                                                                  
+#
+# eCos is distributed in the hope that it will be useful, but WITHOUT       
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or     
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License     
+# for more details.                                                         
+#
+# You should have received a copy of the GNU General Public License         
+# along with eCos; if not, write to the Free Software Foundation, Inc.,     
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.             
+#
+# As a special exception, if other files instantiate templates or use       
+# macros or inline functions from this file, or you compile this file       
+# and link it with other works to produce a work based on this file,        
+# this file does not by itself cause the resulting work to be covered by    
+# the GNU General Public License. However the source code for this file     
+# must still be made available in accordance with section (3) of the GNU    
+# General Public License v2.                                                
+#
+# This exception does not invalidate any other reasons why a work based     
+# on this file might be covered by the GNU General Public License.          
+# -------------------------------------------                               
+# ####ECOSGPLCOPYRIGHTEND####                                               
+# ====================================================================
+######DESCRIPTIONBEGIN####
+#
+# Author(s):     ccoutand
+# Date:          2014-05-29
+#
+#####DESCRIPTIONEND####
+#========================================================================
+
+cdl_package CYGPKG_DEVS_FRAMEBUF_R61523 {
+    display      "Framebuffer device driver for the r61523 LCD controller"
+    parent       CYGPKG_IO_FRAMEBUF
+    active_if    CYGPKG_IO_FRAMEBUF
+    hardware
+
+    description "
+        This package provides a framebuffer device driver for the r61523 
+        LCD controller. Current driver only supports direct access to the 
+        controller internal GRAM. Future extension will support RAM buffer to 
+        reduce the number of IO access to the LCD controller.
+        The r61523 framebuffer driver requires a platform specific package
+        that provides the necessary macros to access and initialize the 
+        controller. The configuration is currently limited to a single
+        framebuffer but can easily be updated to support multiple LCD 
+        displays."
+
+    cdl_interface CYGINT_DEVS_FRAMEBUF_R61523_PLF {
+        display  "Require HAL platform to implement the access routine to the LCD controller"
+        no_define
+        requires 1 == CYGINT_DEVS_FRAMEBUF_R61523_PLF
+    }
+
+    for { set _fb 0 } { $_fb < 1 } { incr _fb } {
+        cdl_component CYGPKG_DEVS_FRAMEBUF_R61523_FB$_fb {
+            display     "Provide framebuffer device fb$_fb"
+            description "
+                The R61523 controller framebuffer driver can provide up to
+                one framebuffer device, named fb0. It shall be possible to 
+                easily extend the number of supported frambuffer if required 
+                in the future. Each device's width, height, and colour format 
+                can be controlled.
+                This option enables device fb$_fb"
+
+            flavor          bool
+            default_value   [expr $_fb ? 0 : 1]
+            implements      CYGINT_IO_FRAMEBUF_DEVICES
+            requires        is_substr(CYGDAT_IO_FRAMEBUF_DEVICES, \" fb[set _fb] \")
+
+            cdl_option CYGNUM_DEVS_FRAMEBUF_R61523_FB[set _fb]_WIDTH {
+                display         "fb$_fb width"
+                flavor          data
+                default_value   640
+                legal_values    { 640 360 }
+            }
+
+            cdl_option CYGNUM_DEVS_FRAMEBUF_R61523_FB[set _fb]_HEIGHT {
+                display         "fb$_fb height"
+                flavor          data
+                legal_values    { 640 360 }
+                default_value   360
+            }
+
+            cdl_option CYGDAT_DEVS_FRAMEBUF_R61523_FB[set _fb]_FORMAT {
+                display        "fb$_fb format"
+                flavor         data
+                legal_values   { "32BPP_TRUE_0888" }
+                default_value  { "32BPP_TRUE_0888" }
+            }
+        }
+        # Eliminate any framebuffer devices that are no longer enabled.
+        requires (CYGPKG_DEVS_FRAMEBUF_R61523_FB$_fb || !is_substr(CYGDAT_IO_FRAMEBUF_DEVICES, \" fb[set _fb] \"))
+    }
+
+    cdl_component CYGPKG_DEVS_FRAMEBUF_R61523_FUNCTIONALITY {
+        display      "Functionality supported by the enabled framebuffer(s)"
+        flavor        none
+        description  "
+            The generic framebuffer code needs configure-time information about
+            functionality of the enabled framebuffer or framebuffers. Usually
+            all this information is fixed by the hardware, but the synthetic
+            target framebuffer support is more flexible than real hardware. To
+            cope with this some dummy options are needed."
+
+        active_if { CYGPKG_DEVS_FRAMEBUF_R61523_FB0 }
+        make -priority=1 {
+            <PREFIX>/include/cyg/io/framebufs/r61523_fb.h :      \
+                <PACKAGE>/src/gen_fb.tcl                   \
+                <PREFIX>/include/pkgconf/devs_framebuf_r61523.h
+            tclsh $< $(PREFIX)
+        }
+        compile r61523_fb.c
+        compile -library=libextras.a r61523_fb_init.cxx
+
+        cdl_option CYGHWR_DEVS_FRAMEBUF_R61523_FUNCTIONALITY_PALETTED {
+            display     "One or more of the enabled framebuffer devices uses a paletted display"
+            calculated  { is_substr(CYGDAT_DEVS_FRAMEBUF_R61523_FB0_FORMAT, "PAL") }
+            implements  CYGHWR_IO_FRAMEBUF_FUNCTIONALITY_PALETTE
+            implements  CYGHWR_IO_FRAMEBUF_FUNCTIONALITY_WRITEABLE_PALETTE
+        }
+
+        cdl_option CYGHWR_DEVS_FRAMEBUF_R61523_TRUE_COLOUR {
+            display     "One or more of the enabled framebuffer devices uses a true colour display"
+            calculated  { is_substr(CYGDAT_DEVS_FRAMEBUF_R61523_FB0_FORMAT, "TRUE") }
+            implements  CYGHWR_IO_FRAMEBUF_FUNCTIONALITY_TRUE_COLOUR
+        }
+    }
+
+    cdl_component CYGPKG_DEVS_FRAMEBUF_R61523_OPTIONS {
+        display       "Framebuffer build options"
+        flavor        none
+        description   "
+        Package specific build options including control over
+        compiler flags used only in building the r61523 LCD
+        controller framebuffer device driver."
+
+        cdl_option CYGPKG_DEVS_FRAMEBUF_R61523_CFLAGS_ADD {
+            display    "Additional compiler flags"
+            flavor     data
+            no_define
+            default_value { "" }
+            description   "
+                This option modifies the set of compiler flags for building
+                the r61523 LCD controller framebuffer device driver. These 
+                flags are used in addition to the set of global flags."
+        }
+
+        cdl_option CYGPKG_DEVS_FRAMEBUF_R61523_CFLAGS_REMOVE {
+            display     "Suppressed compiler flags"
+            flavor       data
+            no_define
+            default_value { "" }
+            description   "
+                This option modifies the set of compiler flags for building
+                the r61523 LCD controller framebuffer device driver. These 
+                flags are removed from the set of global flags if present."
+        }
+    }
+}

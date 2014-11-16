@@ -1,0 +1,41 @@
+2010-11-07  Christophe Coutand  <ccoutand@stmi.com>
+
+    * Updated driver
+    * cdl/step_motor.cdl
+    * src/step_motor.c
+    * tests/step_motor_test.c
+    * include/step_motor.h
+
+    * Added possibe multiple interfaces
+    * include/step_motor.inl
+    
+2010-10-24  Christophe Coutand  <ccoutand@stmi.com>
+
+    * Create step motor package
+    * cdl/step_motor.cdl
+    * src/step_motor.c
+    * include/step_motor.h
+
+//===========================================================================
+// ####GPLCOPYRIGHTBEGIN####                                                
+// -------------------------------------------                              
+// This file is part of eCos, the Embedded Configurable Operating System.   
+// Copyright (C) 2008, 2009 Free Software Foundation, Inc.                        
+//
+// This program is free software; you can redistribute it and/or modify     
+// it under the terms of the GNU General Public License as published by     
+// the Free Software Foundation; either version 2 or (at your option) any   
+// later version.                                                           
+//
+// This program is distributed in the hope that it will be useful, but      
+// WITHOUT ANY WARRANTY; without even the implied warranty of               
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU        
+// General Public License for more details.                                 
+//
+// You should have received a copy of the GNU General Public License        
+// along with this program; if not, write to the                            
+// Free Software Foundation, Inc., 51 Franklin Street,                      
+// Fifth Floor, Boston, MA  02110-1301, USA.                                
+// -------------------------------------------                              
+// ####GPLCOPYRIGHTEND####                                                  
+//===========================================================================

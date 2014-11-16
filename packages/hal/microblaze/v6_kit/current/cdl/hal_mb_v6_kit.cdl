@@ -1,0 +1,177 @@
+##==========================================================================
+##
+##      hal_mb_v6_kit.cdl
+##
+##      Microblaze Virtex6 Custom Board HAL configuration data
+##
+##==========================================================================
+## ####ECOSGPLCOPYRIGHTBEGIN####                                            
+## -------------------------------------------                              
+## This file is part of eCos, the Embedded Configurable Operating System.   
+## Copyright (C) 2012 Free Software Foundation, Inc.                        
+##
+## eCos is free software; you can redistribute it and/or modify it under    
+## the terms of the GNU General Public License as published by the Free     
+## Software Foundation; either version 2 or (at your option) any later      
+## version.                                                                 
+##
+## eCos is distributed in the hope that it will be useful, but WITHOUT      
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    
+## FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License    
+## for more details.                                                        
+##
+## You should have received a copy of the GNU General Public License        
+## along with eCos; if not, write to the Free Software Foundation, Inc.,    
+## 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.            
+##
+## As a special exception, if other files instantiate templates or use      
+## macros or inline functions from this file, or you compile this file      
+## and link it with other works to produce a work based on this file,       
+## this file does not by itself cause the resulting work to be covered by   
+## the GNU General Public License. However the source code for this file    
+## must still be made available in accordance with section (3) of the GNU   
+## General Public License v2.                                               
+##
+## This exception does not invalidate any other reasons why a work based    
+## on this file might be covered by the GNU General Public License.         
+## -------------------------------------------                              
+## ####ECOSGPLCOPYRIGHTEND####                                              
+##==========================================================================
+#######DESCRIPTIONBEGIN####
+##
+## Author(s):    ccoutand
+## Date:         2011-02-01
+##
+######DESCRIPTIONEND####
+##
+##==========================================================================
+
+cdl_package CYGPKG_HAL_MICROBLAZE_V6_KIT {
+    display       "Virtex6 Custom Board"
+    include_dir   cyg/hal
+    define_header hal_mb_v6_kit.h
+    compile       mb_v6_kit_misc.c
+    parent        CYGPKG_HAL_MICROBLAZE
+    hardware
+
+    requires      { CYGPKG_HAL_MICROBLAZE_UART0 }
+    requires      { CYGHWR_HAL_MICROBLAZE_BRAM_STORE_VECTORS }
+
+    requires      { is_active(CYGPKG_DEVS_ETH_PHY) implies
+                    (1 == CYGHWR_DEVS_ETH_PHY_VSC8641) }
+
+    description   "
+        The Virtex6 KIT HAL package provides the support needed to run
+        eCos on customized Virtex6 KIT."
+
+    define_proc {
+        puts $::cdl_system_header "#define CYGBLD_HAL_PLATFORM_H  <pkgconf/hal_mb_v6_kit.h>"
+        puts $::cdl_header "#define HAL_PLATFORM_BOARD  \"Virtex6 KIT\""
+        puts $::cdl_header "#define HAL_PLATFORM_EXTRA  \"\""
+    }
+
+    cdl_component CYG_HAL_STARTUP {
+        display       "Startup type"
+        flavor        data
+        default_value {"BRAM"}
+        legal_values  {"BRAM"}
+        no_define
+        define -file system.h CYG_HAL_STARTUP
+        description   "
+            Select BRAM' when building application that shall run from FPGA
+            internal BRAM. This is the only option for this target."
+    }
+
+    cdl_component CYGHWR_MEMORY_LAYOUT {
+        display "Memory layout"
+        flavor data
+        no_define
+        calculated    { (CYG_HAL_STARTUP == "BRAM")  ? "mb_v6_kit_bram"     :
+                                                       "undefined" }
+
+        cdl_option CYGHWR_MEMORY_LAYOUT_LDI {
+                display "Memory layout linker script fragment"
+                flavor data
+                no_define
+                define -file system.h CYGHWR_MEMORY_LAYOUT_LDI
+                calculated { "<pkgconf/mlt_" . CYGHWR_MEMORY_LAYOUT . ".ldi>" }
+        }
+
+        cdl_option CYGHWR_MEMORY_LAYOUT_H {
+                display "Memory layout header file"
+                flavor data
+                no_define
+                define -file system.h CYGHWR_MEMORY_LAYOUT_H
+                calculated { "<pkgconf/mlt_" . CYGHWR_MEMORY_LAYOUT . ".h>" }
+        }
+    }
+
+    cdl_component CYGPKG_REDBOOT_HAL_OPTIONS {
+        display       "Redboot HAL options"
+        flavor        none
+        no_define
+        parent        CYGPKG_REDBOOT
+        active_if     CYGPKG_REDBOOT
+        description   "
+            This option lists the target's requirements for a valid Redboot
+            configuration."
+
+        cdl_option CYGBLD_BUILD_REDBOOT_BIN {
+            display       "Build Redboot ROM binary images"
+            active_if     CYGBLD_BUILD_REDBOOT
+            default_value 1
+            no_define
+            description "This option enables the conversion of the Redboot ELF
+                         image to binary image formats suitable for ROM programming."
+
+            make -priority 325 {
+                <PREFIX>/bin/redboot.bin : <PREFIX>/bin/redboot.elf
+                $(OBJCOPY) --strip-debug $< $(@:.bin=.img)
+                $(OBJCOPY) -O srec $< $(@:.bin=.srec)
+                $(OBJCOPY) -O binary -R .vectors $< $@
+            }
+        }
+    }
+
+    cdl_component CYGBLD_GLOBAL_OPTIONS {
+        display "Global build options"
+        flavor  none
+        parent  CYGPKG_NONE
+        description   "
+        Global build options including control over
+        compiler flags, linker flags and choice of toolchain."
+
+
+        cdl_option CYGBLD_GLOBAL_COMMAND_PREFIX {
+            display "Global command prefix"
+            flavor  data
+            no_define
+            default_value { "microblaze-elf" }
+            description "
+                This option specifies the command prefix used when
+                invoking the build tools."
+        }
+
+        cdl_option CYGBLD_GLOBAL_CFLAGS {
+            display "Global compiler flags"
+            flavor  data
+            no_define
+            default_value { CYGBLD_GLOBAL_WARNFLAGS . "-mcpu=v8.00.a -g -O2 -ffunction-sections -fdata-sections -fno-rtti -fno-exceptions" }
+            description   "
+                This option controls the global compiler flags which are used to
+                compile all packages by default. Individual packages may define
+                options which override these global flags."
+        }
+
+        cdl_option CYGBLD_GLOBAL_LDFLAGS {
+            display "Global linker flags"
+            flavor  data
+            no_define
+            default_value { "-g -nostdlib -Wl,-no-relax -Wl,--gc-sections -Wl,-static" }
+            description   "
+                This option controls the global linker flags. Individual
+                packages may define options which override these global flags."
+        }
+    }
+
+}

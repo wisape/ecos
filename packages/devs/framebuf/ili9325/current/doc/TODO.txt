@@ -1,0 +1,8 @@
+
+TODO:
+=====
+
+- Complete move block routine in ili9325_direct.inl
+- Test write / read block routine from ili9325_direct.inl
+- Update colour mapping
+- Implement ili9325_buffer.inl

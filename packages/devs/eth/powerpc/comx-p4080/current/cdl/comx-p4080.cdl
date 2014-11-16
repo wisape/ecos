@@ -1,0 +1,222 @@
+# ==========================================================================
+#
+#      comx-p4080.cdl
+#
+#      Ethernet device driver for Emerson COMX-P4080 board
+#
+##==========================================================================
+## ####ECOSGPLCOPYRIGHTBEGIN####                                            
+## -------------------------------------------                              
+## This file is part of eCos, the Embedded Configurable Operating System.   
+## Copyright (C) 2013 Free Software Foundation, Inc.                        
+##
+## eCos is free software; you can redistribute it and/or modify it under    
+## the terms of the GNU General Public License as published by the Free     
+## Software Foundation; either version 2 or (at your option) any later      
+## version.                                                                 
+##
+## eCos is distributed in the hope that it will be useful, but WITHOUT      
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    
+## FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License    
+## for more details.                                                        
+##
+## You should have received a copy of the GNU General Public License        
+## along with eCos; if not, write to the Free Software Foundation, Inc.,    
+## 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.            
+##
+## As a special exception, if other files instantiate templates or use      
+## macros or inline functions from this file, or you compile this file      
+## and link it with other works to produce a work based on this file,       
+## this file does not by itself cause the resulting work to be covered by   
+## the GNU General Public License. However the source code for this file    
+## must still be made available in accordance with section (3) of the GNU   
+## General Public License v2.                                               
+##
+## This exception does not invalidate any other reasons why a work based    
+## on this file might be covered by the GNU General Public License.         
+## -------------------------------------------                              
+## ####ECOSGPLCOPYRIGHTEND####                                              
+##==========================================================================
+######DESCRIPTIONBEGIN####
+#
+# Author(s):    ccoutand
+# Contributors: 
+# Date:         2013-01-29
+# Purpose:      
+# Description:  Hardware driver for Emerson COMX-P4080 board
+#
+#####DESCRIPTIONEND####
+#
+# ==========================================================================
+
+
+cdl_package CYGPKG_DEVS_ETH_POWERPC_COMX_P4080 {
+    display       "Emerson COMX-P4080 Ethernet support"
+    description   "
+        Ethernet driver for the Emerson COMX-P4080 daughter board"
+
+    parent        CYGPKG_DEVS_ETH_FREESCALE_FMAN
+    active_if     CYGPKG_IO_ETH_DRIVERS
+    active_if     CYGPKG_HAL_POWERPC 
+    active_if     CYGPKG_HAL_POWERPC_QORIQ_E500MC
+
+    requires      CYGPKG_DEVS_ETH_FREESCALE_FMAN
+
+    include_dir   cyg/io
+
+    define_proc {
+        puts $::cdl_system_header "#define CYGDAT_DEVS_ETH_FREESCALE_FMAN_PLF_H <pkgconf/devs_eth_powerpc_comx_p4080.h>"
+        puts $::cdl_system_header "#define CYGDAT_DEVS_ETH_FREESCALE_FMAN_PLF_INL <cyg/io/comx-p4080.inl>"
+    }
+
+    cdl_option CYGPKG_DEVS_ETH_COMX_P4080_ETH_DEBUG_CODE {
+        display         "Include Ethernet debug code"
+        requires        CYGSEM_DEVS_ETH_FREESCALE_FMAN_DEBUG_CODE
+        flavor          bool
+        default_value   0
+        description     "
+           Selecting this option will cause the debug code to be included in
+           the final build. Can be called from the application for debugging
+           purpose."
+    }
+
+    cdl_component CYGPKG_DEVS_ETH_COMX_P4080_ETH0 {
+        display      "Emerson COMX-P4080 Ethernet port 0 driver"
+        flavor        bool
+        default_value 1
+        description   "
+            This option includes the Ethernet device driver on the 
+            Emerson COMX-P4080 daughter board."
+
+        implements CYGHWR_NET_DRIVERS
+        implements CYGHWR_NET_DRIVER_ETH0
+
+        cdl_option CYGDAT_DEVS_ETH_COMX_P4080_ETH0_NAME {
+            display       "Device name for the Ethernet port 0"
+            flavor        data
+            default_value {"\"eth0\""}
+            description   "
+                This option sets the name of the Ethernet device for the
+                Ethernet port 0."
+        }
+
+        cdl_option CYGDAT_DEVS_ETH_COMX_P4080_ETH0_MAC {
+            display       "MAC layer type for the Ethernet port 0"
+            flavor         data
+            legal_values  {"DTSEC" "10GEC"}
+            default_value {"DTSEC"}
+            description   "
+                Available MAC controller are the DTSEC for 10/100/1000Mbps links and
+                the 10GEC for 10Gbps links."
+        }
+
+        cdl_option CYGDAT_DEVS_ETH_COMX_P4080_ETH0_MAC_NUM {
+            display       "MAC layer interface number for the Ethernet port 0"
+            flavor         data
+            default_value  1
+            description   "
+                Select the MAC layer interface number, 1 to specify DTSEC1 or GEC1,
+                2 for DTSEC2 or GEC2 etc.."
+        }
+
+        cdl_option CYGDAT_DEVS_ETH_COMX_P4080_ETH0_FMAN_NUM {
+            display       "Frame Manager for the Ethernet port 0"
+            flavor         data
+            legal_values   1 to 2
+            default_value  1
+            requires      { (CYGDAT_DEVS_ETH_COMX_P4080_ETH0_FMAN_NUM == 1 ? CYGPKG_HAL_POWERPC_FREESCALE_DPAA_FMAN1 : CYGPKG_HAL_POWERPC_FREESCALE_DPAA_FMAN2 ) }
+            description   "
+                Select the Frame Manager controller linked to the Ethernet port 0."
+        }
+
+        cdl_component CYGPKG_DEVS_ETH_COMX_P4080_ETH0_RX_PORT {
+            display      "Configure Ethernet 0 Rx Port"
+            flavor        none
+
+            cdl_option CYGDAT_DEVS_ETH_COMX_P4080_ETH0_RX_PORTID {
+                display       "Hardware PortID"
+                flavor         data
+                default_value  { 8 }
+                description   "
+                    Select the Hardware PortID used as receiver port."
+            }
+
+            cdl_option CYGDAT_DEVS_ETH_COMX_P4080_ETH0_RX_LOGICAL_PORTID {
+                display       "Logical PortID"
+                flavor         data
+                default_value  { 0 }
+                description   "
+                    Configure the Logical PortID."
+            }
+        }
+
+        cdl_component CYGPKG_DEVS_ETH_COMX_P4080_ETH0_TX_PORT {
+            display      "Configure Ethernet 0 Tx Port"
+            flavor        none
+
+            cdl_option CYGDAT_DEVS_ETH_COMX_P4080_ETH0_TX_PORTID {
+                display       "Hardware PortID"
+                flavor         data
+                default_value  { 40 }
+                description   "
+                    Select the Hardware PortID used as transmitter port."
+            }
+
+            cdl_option CYGDAT_DEVS_ETH_COMX_P4080_ETH0_TX_LOGICAL_PORTID {
+                display       "Logical PortID"
+                flavor         data
+                default_value  { 1 }
+                description   "
+                    Configure the Logical PortID."
+            }
+        }
+
+        cdl_option CYGDAT_DEVS_ETH_COMX_P4080_ETH0_FMAN_MODE {
+            display       "Independent Mode / Normal Mode"
+            flavor         data
+            default_value  {"IM"}
+            legal_values   {"IM" "NORMAL"}
+            description   "
+                Specify the mode for this port, independent or normal mode. Note
+                that normal mode is not supported yet."
+        }
+
+        cdl_option CYGNUM_DEVS_ETH_FREESCALE_FMAN_ETH0_TxNUM {
+            display       "Number of output buffers"
+            flavor        data
+            legal_values  2 to 512
+            default_value 64
+            description   "
+                This option specifies the number of output buffer packets
+                to be used for the Frame Manager Ethernet device."
+        }
+
+        cdl_option CYGNUM_DEVS_ETH_FREESCALE_FMAN_ETH0_RxNUM {
+            display       "Number of input buffers"
+            flavor        data
+            legal_values  2 to 512
+            default_value 64
+            description   "
+                This option specifies the number of input buffer packets
+                to be used for the Frame Manager Ethernet device."
+        }
+
+        cdl_component CYGSEM_DEVS_ETH_COMX_P4080_ETH0_SET_ESA {
+            display       "Set the ethernet station address"
+            flavor        bool
+            default_value !CYGPKG_DEVS_ETH_TSEC_ETH_REDBOOT_HOLDS_ESA
+            description   "Enabling this option will allow the Ethernet
+            station address to be forced to the value set by the
+            configuration.  This may be required if the hardware does
+            not include a serial EEPROM for the ESA, and if RedBoot's
+            flash configuration support is not available."
+            
+            cdl_option CYGDAT_DEVS_ETH_COMX_P4080_ETH0_ESA {
+                display       "The Ethernet station address"
+                flavor        data
+                default_value {"{0x00, 0x20, 0x0E, 0x10, 0x39, 0x89}"}
+                description   "The Ethernet station address"
+            }
+        }
+    }
+}

@@ -1,0 +1,277 @@
+##==========================================================================
+##
+##      hal_mb_spartan3adsp.cdl
+##
+##      Microblaze Spartan3A-DSP HAL configuration data
+##
+##==========================================================================
+## ####ECOSGPLCOPYRIGHTBEGIN####                                            
+## -------------------------------------------                              
+## This file is part of eCos, the Embedded Configurable Operating System.   
+## Copyright (C) 2011 Free Software Foundation, Inc.                        
+##
+## eCos is free software; you can redistribute it and/or modify it under    
+## the terms of the GNU General Public License as published by the Free     
+## Software Foundation; either version 2 or (at your option) any later      
+## version.                                                                 
+##
+## eCos is distributed in the hope that it will be useful, but WITHOUT      
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    
+## FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License    
+## for more details.                                                        
+##
+## You should have received a copy of the GNU General Public License        
+## along with eCos; if not, write to the Free Software Foundation, Inc.,    
+## 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.            
+##
+## As a special exception, if other files instantiate templates or use      
+## macros or inline functions from this file, or you compile this file      
+## and link it with other works to produce a work based on this file,       
+## this file does not by itself cause the resulting work to be covered by   
+## the GNU General Public License. However the source code for this file    
+## must still be made available in accordance with section (3) of the GNU   
+## General Public License v2.                                               
+##
+## This exception does not invalidate any other reasons why a work based    
+## on this file might be covered by the GNU General Public License.         
+## -------------------------------------------                              
+## ####ECOSGPLCOPYRIGHTEND####                                              
+##==========================================================================
+#######DESCRIPTIONBEGIN####
+##
+## Author(s):    ccoutand
+## Date:         2011-02-01
+##
+######DESCRIPTIONEND####
+##
+##==========================================================================
+
+cdl_package CYGPKG_HAL_MICROBLAZE_SPARTAN3ADSP {
+    display       "Xilinx Spartan3A-DSP Development Board"
+    include_dir   cyg/hal
+    define_header hal_mb_spartan3adsp.h
+    compile       mb_spartan3adsp_misc.c
+    parent        CYGPKG_HAL_MICROBLAZE
+    hardware
+
+    requires      { CYGPKG_HAL_MICROBLAZE_UART0 }
+    # Vectors in external flash is not implemented yet for this PLF. Check the 
+    # spartan3an PLF HAL as an example to implement it.
+    requires      { CYGHWR_HAL_MICROBLAZE_BRAM_STORE_VECTORS }
+
+    description   "
+        The Xilinx Spartan3A-DSP HAL package provides the support needed to run
+        eCos on the Xilinx Spartan3A-DSP Development Board."
+
+    define_proc {
+        puts $::cdl_system_header "#define CYGBLD_HAL_PLATFORM_H  <pkgconf/hal_mb_spartan3adsp.h>"
+        puts $::cdl_header "#define HAL_PLATFORM_BOARD  \"Xilinx Spartan3-DSP\""
+        puts $::cdl_header "#define HAL_PLATFORM_EXTRA  \"\""
+    }
+
+    cdl_component CYG_HAL_STARTUP {
+        display       "Startup type"
+        flavor        data
+        default_value {"RAM"}
+        legal_values  {"RAM" "BRAM" "ROM" "QEMU" "ROMRAM" "JTAG"}
+        no_define
+        define -file system.h CYG_HAL_STARTUP
+        description   "
+            Select 'RAM' when building programs to load into RAM using onboard
+            debug software such as RedBoot or eCos GDB stubs.  Select 'ROM'
+            when building a stand-alone application which will be put
+            into ROM.'QEMU' startup type allows to run emulation using QEMU. 
+            Select BRAM' when building application that shall run from FPGA
+            internal BRAM.
+            Select 'JTAG' when building application that shall be loaded to RAM
+            using the JTAG interface."
+    }
+
+    cdl_option CYGNUM_TEXT_SECTION_OFFSET {
+        display        "Offset start of the text section"
+        active_if      { CYG_HAL_STARTUP != "ROM"    && 
+                         CYG_HAL_STARTUP != "ROMRAM" &&
+                         CYG_HAL_STARTUP != "BRAM" }
+        flavor          data
+        default_value   0x100000
+        description    "
+            When loading the application to RAM, select where the text section
+            should start compare to the RAM base address."
+    }
+
+    cdl_component CYGPKG_HAL_MICROBLAZE_SPARTAN3ADSP_CACHES {
+        display       "Configure Caches"
+        flavor         none
+        description   "
+            This option allows to enable the instruction and data caches and
+            provide the geometry of the caches."
+
+        cdl_component CYGSEM_HAL_PLF_ICACHE_ENABLE {
+            display         "Instruction Cache"
+            flavor          bool
+            default_value   0
+            description     "
+               Configure the Instruction cache."
+
+            cdl_option CYGNUM_HAL_ICACHE_SIZE {
+                display        "Select cache size in Bytes"
+                flavor          data
+                default_value   2048
+                description     "
+                   Select the cache size in Bytes. Must be a power of 2."
+            }
+
+            cdl_option CYGNUM_HAL_ICACHE_LINE_SIZE {
+                display         "Select cache line size in Bytes"
+                flavor          data
+                legal_values    {16 32}
+                default_value   16
+                description     "
+                   Select the cache line size in Bytes."
+            }
+        }
+
+        cdl_component CYGSEM_HAL_PLF_DCACHE_ENABLE {
+            display         "Data Cache"
+            flavor           bool
+            default_value    0
+            description     "
+               Configure the Data cache. Cache policy (Copyback or Write-through 
+               is controlled from CYGSEM_HAL_DCACHE_STARTUP_MODE)."
+
+            cdl_option CYGNUM_HAL_DCACHE_CACHEABLE_BASE_ADDRESS {
+                display        "Select base address of a cacheable memory area"
+                flavor          data
+                default_value   CYGHWR_MEMORY_SDRAM_BASE_ADDRESS
+                description     "
+                   The address is default set to the external RAM memory."
+            }
+
+            cdl_option CYGNUM_HAL_DCACHE_SIZE {
+                display        "Select cache size in Bytes"
+                flavor          data
+                default_value   2048
+                description     "
+                   Select the cache size in Bytes. Must be a power of 2."
+            }
+
+            cdl_option CYGNUM_HAL_DCACHE_LINE_SIZE {
+                display         "Select cache line size in Bytes"
+                flavor          data
+                legal_values    {16 32}
+                default_value   16
+                description     "
+                   Select the cache line size in Bytes."
+            }
+        }
+    }
+
+    cdl_component CYGHWR_MEMORY_LAYOUT {
+        display "Memory layout"
+        flavor data
+        no_define
+        calculated    { (CYG_HAL_STARTUP == "RAM"  || CYG_HAL_STARTUP == "JTAG") ? "mb_spartan3adsp_ram"      :
+                        (CYG_HAL_STARTUP == "BRAM")                              ? "mb_spartan3adsp_bram"     :
+                        (CYG_HAL_STARTUP == "ROM" )                              ? "mb_spartan3adsp_rom"      :
+                        (CYG_HAL_STARTUP == "ROMRAM" )                           ? "mb_spartan3adsp_romram":
+                        (CYG_HAL_STARTUP == "QEMU")                              ? "mb_spartan3adsp_qemu"     :
+                                                                                   "undefined" }
+
+        cdl_option CYGHWR_MEMORY_LAYOUT_LDI {
+                display "Memory layout linker script fragment"
+                flavor data
+                no_define
+                define -file system.h CYGHWR_MEMORY_LAYOUT_LDI
+                calculated { "<pkgconf/mlt_" . CYGHWR_MEMORY_LAYOUT . ".ldi>" }
+        }
+
+        cdl_option CYGHWR_MEMORY_LAYOUT_H {
+                display "Memory layout header file"
+                flavor data
+                no_define
+                define -file system.h CYGHWR_MEMORY_LAYOUT_H
+                calculated { "<pkgconf/mlt_" . CYGHWR_MEMORY_LAYOUT . ".h>" }
+        }
+
+        cdl_option CYGHWR_MEMORY_SDRAM_BASE_ADDRESS {
+                display        "Select base address of the external RAM"
+                flavor          data
+                default_value   0x90000000
+        }
+
+        cdl_option CYGHWR_MEMORY_FLASH_BASE_ADDRESS {
+                display        "Select base address of the external FLASH"
+                flavor          data
+                default_value   0xA0000000
+        }
+    }
+
+    cdl_component CYGPKG_REDBOOT_HAL_OPTIONS {
+        display       "Redboot HAL options"
+        flavor        none
+        no_define
+        parent        CYGPKG_REDBOOT
+        active_if     CYGPKG_REDBOOT
+        description   "
+            This option lists the target's requirements for a valid Redboot
+            configuration."
+
+        cdl_option CYGBLD_BUILD_REDBOOT_BIN {
+            display       "Build Redboot ROM binary images"
+            active_if     CYGBLD_BUILD_REDBOOT
+            default_value 1
+            no_define
+            description "This option enables the conversion of the Redboot ELF
+                         image to binary image formats suitable for ROM programming."
+
+            make -priority 325 {
+                <PREFIX>/bin/redboot.bin : <PREFIX>/bin/redboot.elf
+                $(OBJCOPY) --strip-debug $< $(@:.bin=.img)
+                $(OBJCOPY) -O srec $< $(@:.bin=.srec)
+                $(OBJCOPY) -O binary -R .vectors $< $@
+            }
+        }
+    }
+
+    cdl_component CYGBLD_GLOBAL_OPTIONS {
+        display "Global build options"
+        flavor  none
+        parent  CYGPKG_NONE
+        description   "
+        Global build options including control over
+        compiler flags, linker flags and choice of toolchain."
+
+
+        cdl_option CYGBLD_GLOBAL_COMMAND_PREFIX {
+            display "Global command prefix"
+            flavor  data
+            no_define
+            default_value { "microblaze-elf" }
+            description "
+                This option specifies the command prefix used when
+                invoking the build tools."
+        }
+
+        cdl_option CYGBLD_GLOBAL_CFLAGS {
+            display "Global compiler flags"
+            flavor  data
+            no_define
+            default_value { CYGBLD_GLOBAL_WARNFLAGS . "-mcpu=v8.00.a -g -O2 -ffunction-sections -fdata-sections -fno-rtti -fno-exceptions" }
+            description   "
+                This option controls the global compiler flags which are used to
+                compile all packages by default. Individual packages may define
+                options which override these global flags."
+        }
+
+        cdl_option CYGBLD_GLOBAL_LDFLAGS {
+            display "Global linker flags"
+            flavor  data
+            no_define
+            default_value { "-g -nostdlib -Wl,-no-relax -Wl,--gc-sections -Wl,-static" }
+            description   "
+                This option controls the global linker flags. Individual
+                packages may define options which override these global flags."
+        }
+    }
+
+}

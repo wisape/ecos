@@ -1,0 +1,577 @@
+#==========================================================================
+#
+#      temac.cdl
+#
+#      Ethernet drivers for the Xilinx TEMAC Controller
+#
+#==========================================================================
+## ####ECOSGPLCOPYRIGHTBEGIN####                                            
+## -------------------------------------------                              
+## This file is part of eCos, the Embedded Configurable Operating System.   
+## Copyright (C) 2012 Free Software Foundation, Inc.
+##
+## eCos is free software; you can redistribute it and/or modify it under    
+## the terms of the GNU General Public License as published by the Free     
+## Software Foundation; either version 2 or (at your option) any later      
+## version.                                                                 
+##
+## eCos is distributed in the hope that it will be useful, but WITHOUT      
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    
+## FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License    
+## for more details.                                                        
+##
+## You should have received a copy of the GNU General Public License        
+## along with eCos; if not, write to the Free Software Foundation, Inc.,    
+## 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.            
+##
+## As a special exception, if other files instantiate templates or use      
+## macros or inline functions from this file, or you compile this file      
+## and link it with other works to produce a work based on this file,       
+## this file does not by itself cause the resulting work to be covered by   
+## the GNU General Public License. However the source code for this file    
+## must still be made available in accordance with section (3) of the GNU   
+## General Public License v2.                                               
+##
+## This exception does not invalidate any other reasons why a work based    
+## on this file might be covered by the GNU General Public License.         
+## -------------------------------------------                              
+## ####ECOSGPLCOPYRIGHTEND####                                              
+#==========================================================================
+######DESCRIPTIONBEGIN####
+#
+# Author(s):    ccoutand
+# Contributors:
+# Date:         2012-01-28
+# Purpose:
+# Description:
+#
+#####DESCRIPTIONEND####
+#
+#========================================================================*/
+
+cdl_package CYGPKG_DEVS_ETH_XILINX_TEMAC {
+    display       "Xilinx TEMAC Ethernet driver"
+
+    requires      CYGPKG_HAL_MICROBLAZE_GENERIC
+    parent        CYGPKG_IO_ETH_DRIVERS
+    active_if     CYGPKG_IO_ETH_DRIVERS
+
+    implements    CYGHWR_NET_DRIVERS
+
+    include_dir   cyg/io
+
+    description   "
+       Ethernet drivers for Xilinx TEMAC Controller."
+
+    compile       -library=libextras.a if_temac.c
+
+    cdl_option CYGSEM_DEVS_ETH_XILINX_TEMAC_CHATTER {
+        display        "Display status messages during Ethernet operations"
+        flavor          bool
+        default_value   0
+        description     "
+           Selecting this option will cause the Ethernet driver to print status
+           messages as various Ethernet operations are undertaken."
+    }
+
+    cdl_option CYGSEM_DEVS_ETH_XILINX_TEMAC_LOG_ERROR {
+        display        "Display error messages during Ethernet operations"
+        flavor          bool
+        default_value   1
+        description     "
+           Selecting this option will cause the Ethernet driver to print error
+           messages as various Ethernet operations are undertaken."
+    }
+
+    cdl_option CYGPKG_DEVS_ETH_XILINX_TEMAC_BLOCK_BASE {
+        display         "TEMAC peripheral base address "
+        flavor           data
+        default_value    0x87000000
+        description      "
+            Define the TEMAC peripheral base address."
+    }
+
+    cdl_option CYGSEM_DEVS_ETH_XILINX_TEMAC_STATS {
+        display         "Maintain statistics at the MAC layer"
+        flavor           bool
+        default_value    0
+        description      "
+           Selecting this option will cause the Ethernet driver to accumulate 
+           statistics provided from the MAC layer."
+    }
+
+    cdl_option CYGSEM_DEVS_ETH_XILINX_TEMAC_PHY_INTERFACE {
+        display         "PHY interface support"
+        flavor           data
+        legal_values    {"MII" "GMII" "RGMII" "SGMII" "1000Base_X"}
+        default_value   {"MII"}
+        description     "
+           Select the interface type used between the TEMAC and the PHY. Both
+           TEMAC must used the same type."
+    }
+
+    cdl_option CYGSEM_DEVS_ETH_XILINX_TEMAC_HARD_RESET {
+        display         "Hard reset"
+        flavor           bool
+        default_value    1
+        description      "
+           Apply hard reset of the TEMAC during initialization. Hard reset
+           will be executed when initializing the first TEMAC interface."
+    }
+
+    cdl_component CYGPKG_DEVS_ETH_XILINX_TEMAC_ETH0 {
+        display       "TEMAC Ethernet port 0 driver"
+        flavor         bool
+        default_value  1
+        description    "
+            This option includes the Ethernet device driver interface 0."
+
+        implements CYGHWR_NET_DRIVERS
+        implements CYGHWR_NET_DRIVER_ETH0
+
+        cdl_option CYGDAT_DEVS_ETH_XILINX_TEMAC_ETH0_NAME {
+            display       "Device name for the Ethernet port 0 driver"
+            flavor         data
+            default_value  {"\"eth0\""}
+            description   "
+                This option sets the name of the Ethernet device for the
+                Ethernet port 0."
+        }
+
+        cdl_option CYGNUM_DEVS_ETH_XILINX_TEMAC_ETH0_MII_CLK_DIV {
+            display       "MII clock divider"
+            flavor         data
+            legal_values   0 to 63
+            default_value  31
+            description   "
+                This option specifies MII interface clock divider. MII clock
+                shall not exceed 2.5MHz."
+        }
+
+        cdl_option CYGPKG_DEVS_ETH_XILINX_TEMAC_ETH0_DATA_BUS {
+            display         "TEMAC port 0 data bus interface"
+            flavor           data
+            legal_values     {"MPMC_SDMA" "LL_FIFO"}
+            default_value    {"LL_FIFO"}
+            description      "
+                This option select the data interface to the TEMAC. The DMA will
+                transfer the TX and RX frames directly from/to memory without
+                the processor interaction. The Local Link FIFO is a buffer of
+                2KB between the processor and the TEMAC. The processor is in charge
+                of moving the data from/to memory. The TEMAC also includes internal
+                memory that can hold up to 32KB of frame data."
+        }
+
+        cdl_option CYGNUM_DEVS_ETH_XILINX_TEMAC_ETH0_IRQNUM {
+            display         "TEMAC port 0 interrupt number"
+            flavor           data
+            default_value    5
+            legal_values     { 0 to CYGNUM_HAL_MICROBLAZE_IPC_MAXIRQ }
+            description      "
+                Define the TEMAC port 0 peripheral interrupt number."
+        }
+
+        cdl_component CYGPKG_DEVS_ETH_XILINX_TEMAC_ETH0_LL_FIFO {
+            display         "Local Link FIFO"
+            flavor           none
+            active_if        { CYGPKG_DEVS_ETH_XILINX_TEMAC_ETH0_DATA_BUS == "LL_FIFO" }
+
+            cdl_option CYGPKG_DEVS_ETH_XILINX_TEMAC_ETH0_LL_FIFO_BLOCK_BASE {
+                display         "Local Link FIFO peripheral base address "
+                flavor           data
+                default_value    0x81B00000
+                description      "
+                    Define the Local Link FIFO peripheral base address connected
+                    to TEMAC port 0."
+            }
+
+            cdl_option CYGPKG_DEVS_ETH_XILINX_TEMAC_ETH0_LL_FIFO_IRQNUM {
+                display          "Local Link FIFO interrupt number"
+                flavor            data
+                default_value     6
+                legal_values      { 0 to CYGNUM_HAL_MICROBLAZE_IPC_MAXIRQ }
+                description       "
+                    Define the Local Link FIFO interrupt number."
+            }
+        }
+
+        cdl_component CYGPKG_DEVS_ETH_XILINX_TEMAC_ETH0_MPMC_SDMA {
+            display         "Multi-port Memory Controller - Soft DMA"
+            flavor           none
+            active_if        { CYGPKG_DEVS_ETH_XILINX_TEMAC_ETH0_DATA_BUS == "MPMC_SDMA" }
+
+            cdl_option CYGPKG_DEVS_ETH_XILINX_TEMAC_ETH0_MPMC_SDMA_BLOCK_BASE {
+                display         "Multi-port Memory Controller peripheral base address "
+                flavor           data
+                default_value    0x81B00000
+                description      "
+                    Define the Local Link FIFO peripheral base address connected
+                    to TEMAC port 0."
+            }
+
+            cdl_option CYGPKG_DEVS_ETH_XILINX_TEMAC_ETH0_MPMC_SDMA_PORT {
+                display          "Soft DMA Port number"
+                flavor            data
+                default_value     1
+                legal_values      { 0 to 7 }
+                description       "
+                    Define the Local Link FIFO interrupt number."
+            }
+
+            cdl_option CYGPKG_DEVS_ETH_XILINX_TEMAC_ETH0_MPMC_SDMA_IRQNUM {
+                display          "Soft DMA interrupt number"
+                flavor            data
+                default_value     6
+                legal_values      { 0 to CYGNUM_HAL_MICROBLAZE_IPC_MAXIRQ }
+                description       "
+                    Define the Local Link FIFO interrupt number."
+            }
+        }
+
+        cdl_option CYGNUM_DEVS_ETH_XILINX_TEMAC_ETH0_TxNUM {
+            display        "Number of output buffers"
+            flavor         data
+            legal_values   1 to 16
+            default_value  1
+            description    "
+                This option specifies the number of output buffer packets
+                to be used for the Actel A2Fxxx/Ethernet device."
+        }
+
+        cdl_option CYGNUM_DEVS_ETH_XILINX_TEMAC_ETH0_RxNUM {
+            display        "Number of input buffers"
+            flavor          data
+            legal_values    1 to 16
+            default_value   1
+            description     "
+                This option specifies the number of input buffer packets
+                to be used for the Actel A2Fxxx/Ethernet device."
+        }
+
+        cdl_option CYGNUM_DEVS_ETH_XILINX_TEMAC_ETH0_BUFSIZE_TX {
+            display        "Buffer size"
+            flavor          data
+            default_value   1536
+            description    "
+                This option specifies the size of the internal transmit
+                 buffers used for the TEMAC Ethernet controller."
+        }
+
+        cdl_option CYGNUM_DEVS_ETH_XILINX_TEMAC_ETH0_BUFSIZE_RX {
+            display        "Buffer size"
+            flavor          data
+            default_value   1536
+            description    "
+                This option specifies the size of the internal receive
+                buffers used for the TEMAC Ethernet controller."
+        }
+
+        cdl_option CYGSEM_DEVS_ETH_XILINX_TEMAC_ETH0_JUMBO {
+            display       "Jumbo frames"
+            flavor         bool
+            default_value  0
+            description    "
+                This option enable the receiver to accept frames over
+                the maximum length specified in IEEE Std 802.3-2002 
+                specification"
+        }
+
+        cdl_option CYGSEM_DEVS_ETH_XILINX_TEMAC_ETH0_VLAN {
+            display       "VLAN tag frames"
+            flavor         bool
+            default_value  0
+            description    "
+                This option enable TEMAC to support reception and transmission
+                of VLAN tag frames."
+        }
+
+        cdl_option CYGSEM_DEVS_ETH_XILINX_TEMAC_ETH0_FCS_STRIP {
+            display       "Strip RX checksum"
+            flavor         bool
+            default_value  1
+            description   "
+                This option enable TEMAC to strip the FCS (checksum) field from
+                the receive frame data. This is required with most TCP/IP stack."
+        }
+
+        cdl_option CYGSEM_DEVS_ETH_XILINX_TEMAC_ETH0_FCS_INSERT {
+            display       "Insert TX checksum"
+            flavor         bool
+            default_value  1
+            description    "
+                This option enable TEMAC to insert checksum on transmitted 
+                frames.If disable, checksum must be part of the user frame."
+        }
+
+        cdl_option CYGSEM_DEVS_ETH_XILINX_TEMAC_ETH0_LT_CHECK {
+            display        "Sanity check"
+            flavor          bool
+            default_value   1
+            description     "
+                This option enable TEMAC to check valid content of the 
+                length/type field of the frame."
+        }
+
+        cdl_option CYGSEM_DEVS_ETH_XILINX_TEMAC_ETH0_FLOW_CONTROL {
+            display       "Flow control"
+            flavor         bool
+            default_value  0
+            description    "
+                This option enable TEMAC to receive flow control frames."
+        }
+
+        cdl_option CYGSEM_DEVS_ETH_XILINX_TEMAC_ETH0_PROMISCUOUS {
+            display       "Promiscuous mode"
+            flavor         bool
+            default_value  0
+            description    "
+                Set TEMAC in promiscuous mode, all frames will be delivered 
+                to the application layer."
+        }
+
+        cdl_option CYGSEM_DEVS_ETH_XILINX_TEMAC_ETH0_BROADCAST {
+            display       "Broadcast"
+            flavor         bool
+            default_value  0
+            description    "
+                This option enable TEMAC to deliver broadcast frames to the 
+                application layer."
+        }
+
+        cdl_component CYGSEM_DEVS_ETH_XILINX_TEMAC_ETH0_SET_ESA {
+            display       "Set the Ethernet station address"
+            flavor        bool
+            default_value !CYGPKG_DEVS_ETH_TSEC_ETH_REDBOOT_HOLDS_ESA
+            description   "Enabling this option will allow the Ethernet
+            station address to be forced to the value set by the
+            configuration.  This may be required if the hardware does
+            not include a serial EEPROM for the ESA, and if RedBoot's
+            flash configuration support is not available."
+            
+            cdl_option CYGDAT_DEVS_ETH_XILINX_TEMAC_ETH0_ESA {
+                display       "The Ethernet station address"
+                flavor        data
+                default_value {"{0x00, 0x20, 0x0E, 0x10, 0x39, 0x89}"}
+                description   "The Ethernet station address"
+            }
+        }
+    }
+
+    cdl_component CYGPKG_DEVS_ETH_XILINX_TEMAC_ETH1 {
+        display       "TEMAC Ethernet port 1 driver"
+        flavor        bool
+        default_value 0
+        description   "
+            This option includes the Ethernet device driver interface 1."
+
+        implements CYGHWR_NET_DRIVERS
+        implements CYGHWR_NET_DRIVER_ETH1
+
+        cdl_option CYGDAT_DEVS_ETH_XILINX_TEMAC_ETH1_NAME {
+            display       "Device name for the Ethernet port 1 driver"
+            flavor        data
+            default_value {"\"eth1\""}
+            description   "
+                This option sets the name of the Ethernet device for the
+                Ethernet port 1."
+        }
+
+        cdl_option CYGNUM_DEVS_ETH_XILINX_TEMAC_ETH1_IRQNUM {
+            display         "TEMAC port 1 interrupt number"
+            flavor           data
+            default_value    7
+            legal_values     { 0 to CYGNUM_HAL_MICROBLAZE_IPC_MAXIRQ }
+            description      "
+                Define the TEMAC port 1 peripheral interrupt number."
+        }
+
+        cdl_option CYGNUM_DEVS_ETH_XILINX_TEMAC_ETH1_MII_CLK_DIV {
+            display       "MII clock divider"
+            flavor         data
+            legal_values   0 to 63
+            default_value  31
+            description   "
+                This option specifies MII interface clock divider. MII clock
+                shall not exceed 2.5MHz."
+        }
+
+        cdl_option CYGPKG_DEVS_ETH_XILINX_TEMAC_ETH1_DATA_BUS {
+            display         "TEMAC port 1 data bus interface"
+            flavor           data
+            legal_values     {"DMA" "LL_FIFO"}
+            default_value    {"LL_FIFO"}
+            description      "
+                This option select the data interface to the TEMAC. The DMA will
+                transfer the TX and RX frames directly from/to memory without
+                the processor interaction. The Local Link FIFO is a buffer of
+                2KB between the processor and the TEMAC. The processor is in charge
+                of moving the data from/to memory. The TEMAC also includes internal
+                memory that can hold up to 32KB of frame data."
+        }
+
+        cdl_component CYGPKG_DEVS_ETH_XILINX_TEMAC_ETH1_LL_FIFO {
+            display         "Local Link FIFO"
+            flavor           none
+            active_if        { CYGPKG_DEVS_ETH_XILINX_TEMAC_ETH1_DATA_BUS == "LL_FIFO" }
+
+            cdl_option CYGPKG_DEVS_ETH_XILINX_TEMAC_ETH1_LL_FIFO_BLOCK_BASE {
+                display         "Local Link FIFO peripheral base address "
+                flavor           data
+                default_value    0x81B00000
+                description      "
+                    Define the Local Link FIFO peripheral base address connected
+                    to TEMAC port 1."
+            }
+
+            cdl_option CYGPKG_DEVS_ETH_XILINX_TEMAC_ETH1_LL_FIFO_IRQNUM {
+                display          "Local Link FIFO interrupt number"
+                flavor            data
+                default_value     8
+                legal_values      { 0 to CYGNUM_HAL_MICROBLAZE_IPC_MAXIRQ }
+                description       "
+                    Define the Local Link FIFO interrupt number."
+            }
+        }
+
+        cdl_option CYGNUM_DEVS_ETH_XILINX_TEMAC_ETH1_TxNUM {
+            display        "Number of output buffers"
+            flavor         data
+            legal_values   1 to 8
+            default_value  1
+            description    "
+                This option specifies the number of output buffer packets
+                to be used for the Actel A2Fxxx/Ethernet device."
+        }
+
+        cdl_option CYGNUM_DEVS_ETH_XILINX_TEMAC_ETH1_RxNUM {
+            display        "Number of input buffers"
+            flavor          data
+            legal_values    1 to 8
+            default_value   1
+            description     "
+                This option specifies the number of input buffer packets
+                to be used for the Actel A2Fxxx/Ethernet device."
+        }
+
+        cdl_option CYGNUM_DEVS_ETH_XILINX_TEMAC_ETH1_BUFSIZE_TX {
+            display        "Buffer size"
+            flavor          data
+            default_value   1536
+            description    "
+                This option specifies the size of the internal transmit
+                 buffers used for the TEMAC Ethernet controller."
+        }
+
+        cdl_option CYGNUM_DEVS_ETH_XILINX_TEMAC_ETH1_BUFSIZE_RX {
+            display        "Buffer size"
+            flavor          data
+            default_value   1536
+            description    "
+                This option specifies the size of the internal receive
+                buffers used for the TEMAC Ethernet controller."
+        }
+
+        cdl_option CYGSEM_DEVS_ETH_XILINX_TEMAC_ETH1_JUMBO {
+            display       "Jumbo frames"
+            flavor         bool
+            default_value  0
+            description    "
+                This option enable the receiver to accept frames over
+                the maximum length specified in IEEE Std 802.3-2002 
+                specification"
+        }
+
+        cdl_option CYGSEM_DEVS_ETH_XILINX_TEMAC_ETH1_VLAN {
+            display       "VLAN tag frames"
+            flavor         bool
+            default_value  0
+            description    "
+                This option enable TEMAC to support reception and transmission
+                of VLAN tag frames."
+        }
+
+        cdl_option CYGSEM_DEVS_ETH_XILINX_TEMAC_ETH1_FCS_STRIP {
+            display       "Strip RX checksum"
+            flavor         bool
+            default_value  1
+            description   "
+                This option enable TEMAC to strip the FCS (checksum) field from
+                the receive frame data. This is required with most TCP/IP stack."
+        }
+
+        cdl_option CYGSEM_DEVS_ETH_XILINX_TEMAC_ETH1_FCS_INSERT {
+            display       "Insert TX checksum"
+            flavor         bool
+            default_value  1
+            description    "
+                This option enable TEMAC to insert checksum on transmitted 
+                frames.If disable, checksum must be part of the user frame."
+        }
+
+        cdl_option CYGSEM_DEVS_ETH_XILINX_TEMAC_ETH1_LT_CHECK {
+            display        "Sanity check"
+            flavor          bool
+            default_value   1
+            description     "
+                This option enable TEMAC to check valid content of the 
+                length/type field of the frame."
+        }
+
+        cdl_option CYGSEM_DEVS_ETH_XILINX_TEMAC_ETH1_FLOW_CONTROL {
+            display       "Flow control"
+            flavor         bool
+            default_value  0
+            description    "
+                This option enable TEMAC to receive flow control frames."
+        }
+
+        cdl_option CYGSEM_DEVS_ETH_XILINX_TEMAC_ETH1_PROMISCUOUS {
+            display       "Promiscuous mode"
+            flavor         bool
+            default_value  0
+            description    "
+                Set TEMAC in promiscuous mode, all frames will be delivered 
+                to the application layer."
+        }
+
+        cdl_option CYGSEM_DEVS_ETH_XILINX_TEMAC_ETH1_BROADCAST {
+            display       "Broadcast"
+            flavor         bool
+            default_value  0
+            description    "
+                This option enable TEMAC to deliver broadcast frames to the 
+                application layer."
+        }
+
+        cdl_component CYGSEM_DEVS_ETH_XILINX_TEMAC_ETH1_SET_ESA {
+            display       "Set the Ethernet station address"
+            flavor        bool
+            default_value !CYGPKG_DEVS_ETH_TSEC_ETH_REDBOOT_HOLDS_ESA
+            description   "Enabling this option will allow the Ethernet
+            station address to be forced to the value set by the
+            configuration.  This may be required if the hardware does
+            not include a serial EEPROM for the ESA, and if RedBoot's
+            flash configuration support is not available."
+            
+            cdl_option CYGDAT_DEVS_ETH_XILINX_TEMAC_ETH1_ESA {
+                display       "The Ethernet station address"
+                flavor        data
+                default_value {"{0x00, 0x20, 0x0E, 0x10, 0x39, 0x90}"}
+                description   "The Ethernet station address"
+            }
+        }
+    }
+
+    cdl_option  CYGPKG_DEVS_ETH_XILINX_TEMAC_CFLAGS_ADD {
+        display "Additional compiler flags"
+        flavor  data
+        no_define
+        default_value { "-D_KERNEL -D__ECOS" }
+        description   "
+            This option modifies the set of compiler flags for
+            building the Actel A2Fxxx Ethernet driver package.
+            These flags are used in addition to the set of global flags."
+    }
+}
+
+# EOF temac.cdl

@@ -1,0 +1,47 @@
+2011-11-18  Christophe Coutand  <open-etech.com@hotmail.co.uk>
+
+	* cdl/hal_mb_spartan3an.cdl:
+	* include/pkgconf/mlt_mb_spartan3an_ram.h
+	* include/pkgconf/mlt_mb_spartan3an_ram.ldi
+	* include/pkgconf/mlt_mb_spartan3an_rom.h
+	* include/pkgconf/mlt_mb_spartan3an_rom.ldi
+	* include/pkgconf/mlt_mb_spartan3an_romram.h
+	* include/pkgconf/mlt_mb_spartan3an_romram.ldi
+	* include/pkgconf/mlt_mb_spartan3an_ram_nobram.h
+	* include/pkgconf/mlt_mb_spartan3an_ram_nobram.ldi
+	* include/pkgconf/mlt_mb_spartan3an_rom_nobram.h
+	* include/pkgconf/mlt_mb_spartan3an_rom_nobram.ldi
+	* include/pkgconf/mlt_mb_spartan3an_romram_nobram.h
+	* include/pkgconf/mlt_mb_spartan3an_romram_nobram.ldi
+	* include/plf_arch.h
+	* include/plf_intr.h
+	* include/plf_io.h
+	* include/plf_cache.h
+	* include/platform.inc
+	* doc/readme.txt
+	* misc/defaut_RAM.ecm
+	* src/mb_spartan3an_misc.c
+
+//===========================================================================
+// ####GPLCOPYRIGHTBEGIN####                                                
+// -------------------------------------------                              
+// This file is part of eCos, the Embedded Configurable Operating System.   
+// Copyright (C) 2011 Free Software Foundation, Inc.                        
+//
+// This program is free software; you can redistribute it and/or modify     
+// it under the terms of the GNU General Public License as published by     
+// the Free Software Foundation; either version 2 or (at your option) any   
+// later version.                                                           
+//
+// This program is distributed in the hope that it will be useful, but      
+// WITHOUT ANY WARRANTY; without even the implied warranty of               
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU        
+// General Public License for more details.                                 
+//
+// You should have received a copy of the GNU General Public License        
+// along with this program; if not, write to the                            
+// Free Software Foundation, Inc., 51 Franklin Street,                      
+// Fifth Floor, Boston, MA  02110-1301, USA.                                
+// -------------------------------------------                              
+// ####GPLCOPYRIGHTEND####                                                  
+//===========================================================================

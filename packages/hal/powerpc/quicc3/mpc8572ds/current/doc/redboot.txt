@@ -1,0 +1,10 @@
+
+# post it..
+
+BDI erase redboot: erase 0xfff00000 0x20000 8
+
+fis delete net
+load -h 137.133.125.102 main.elf
+fis create -f 0xEC160000 -e 0x00100000 net
+fis load net
+go

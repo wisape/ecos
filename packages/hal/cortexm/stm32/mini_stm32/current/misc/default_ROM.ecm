@@ -1,0 +1,57 @@
+cdl_savefile_version 1;
+cdl_savefile_command cdl_savefile_version {};
+cdl_savefile_command cdl_savefile_command {};
+cdl_savefile_command cdl_configuration { description hardware template package };
+cdl_savefile_command cdl_package { value_source user_value wizard_value inferred_value };
+cdl_savefile_command cdl_component { value_source user_value wizard_value inferred_value };
+cdl_savefile_command cdl_option { value_source user_value wizard_value inferred_value };
+cdl_savefile_command cdl_interface { value_source user_value wizard_value inferred_value };
+
+cdl_configuration eCos {
+    description "" ;
+    template    default ;
+    package CYGPKG_DEVS_TOUCH_SPI_TSC2046 current ;
+    package CYGPKG_DEVS_TOUCH_CORTEXM_MINI_STM32 current ;
+    package CYGPKG_IO_FILEIO current ;
+    package CYGPKG_IO_FRAMEBUF current ;
+};
+
+cdl_component CYG_HAL_STARTUP {
+    user_value ROM
+};
+
+cdl_component CYGHWR_DEVS_SPI_CORTEXM_STM32_BUS1 {
+   user_value 1
+};
+
+cdl_option CYGHWR_DEVS_SPI_CORTEXM_STM32_BUS1_CS_GPIOS {
+   user_value 4,23
+};
+
+cdl_option CYGSEM_DEVS_TOUCH_SPI_TSC2046_HORIZONTAL_SWAP {
+   user_value 0
+};
+
+cdl_option CYGDAT_IO_FRAMEBUF_DEVICES {
+   user_value " fb0  0 "
+};
+
+cdl_option CYGDAT_IO_FRAMEBUF_TEST_DEVICE {
+   user_value 1 fb0
+};
+
+cdl_option CYGNUM_DEVS_FRAMEBUF_ILI9325_FB0_WIDTH {
+   user_value 320
+};
+
+cdl_option CYGNUM_DEVS_FRAMEBUF_ILI9325_FB0_HEIGHT {
+   user_value 240
+};
+
+cdl_option CYGNUM_DEVS_TOUCH_SPI_TSC2046_VERTICAL_SPAN {
+   user_value 240
+};
+
+cdl_option CYGNUM_DEVS_TOUCH_SPI_TSC2046_HORIZONTAL_SPAN {
+    user_value 320
+};

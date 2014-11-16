@@ -1,0 +1,373 @@
+# ==========================================================================
+#
+#   hal_powerpc_qoriq_e500mc.cdl
+#
+#   Freescale QorIQ variant architectural HAL package configuration data
+#
+##==========================================================================
+## ####ECOSGPLCOPYRIGHTBEGIN####                                            
+## -------------------------------------------                              
+## This file is part of eCos, the Embedded Configurable Operating System.   
+## Copyright (C) 2012 Free Software Foundation, Inc.
+##
+## eCos is free software; you can redistribute it and/or modify it under    
+## the terms of the GNU General Public License as published by the Free     
+## Software Foundation; either version 2 or (at your option) any later      
+## version.                                                                 
+##
+## eCos is distributed in the hope that it will be useful, but WITHOUT      
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    
+## FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License    
+## for more details.                                                        
+##
+## You should have received a copy of the GNU General Public License        
+## along with eCos; if not, write to the Free Software Foundation, Inc.,    
+## 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.            
+##
+## As a special exception, if other files instantiate templates or use      
+## macros or inline functions from this file, or you compile this file      
+## and link it with other works to produce a work based on this file,       
+## this file does not by itself cause the resulting work to be covered by   
+## the GNU General Public License. However the source code for this file    
+## must still be made available in accordance with section (3) of the GNU   
+## General Public License v2.                                               
+##
+## This exception does not invalidate any other reasons why a work based    
+## on this file might be covered by the GNU General Public License.         
+## -------------------------------------------                              
+## ####ECOSGPLCOPYRIGHTEND####                                              
+##==========================================================================
+######DESCRIPTIONBEGIN####
+#
+# Author(s):    ccoutand
+# Contributors: 
+# Date:         2012-07-20
+# Purpose:      
+# Description:  Variant package for Freescale QorIQ (e500mc only) architecture
+#
+#####DESCRIPTIONEND####
+#
+# ==========================================================================
+
+cdl_package CYGPKG_HAL_POWERPC_QORIQ_E500MC {
+    display       "PowerPC Freescale QorIQ variant HAL"
+    parent        CYGPKG_HAL_POWERPC
+    requires      ( CYGHWR_HAL_POWERPC_BOOK_E==1 )
+    requires      ( CYGHWR_HAL_POWERPC_E500_CORE==1 )
+    requires      ( CYGHWR_HAL_POWERPC_E500=="mc" )
+    hardware
+    include_dir   cyg/hal
+    define_header hal_powerpc_qoriq.h
+    description   "
+           The PowerPC Freescale QorIQ variant HAL package provides generic 
+           support for this processor variant. It is also necessary to select
+           a specific target platform HAL package."
+
+    # Note: This should be sub-variant specific to reduce memory use.
+    define_proc {
+      puts $cdl_header "#define CYGHWR_HAL_VSR_TABLE (CYGHWR_HAL_POWERPC_VECTOR_BASE + 0x3000)"
+      puts $cdl_header "#define CYGHWR_HAL_VIRTUAL_VECTOR_TABLE (CYGHWR_HAL_VSR_TABLE + 0x200)"
+      puts $cdl_header "#define CYGHWR_HAL_SMP_CPU_SYNC_TABLE  (CYGHWR_HAL_POWERPC_VECTOR_BASE + 0x2800)"
+      puts $cdl_header "#define CYGHWR_HAL_SMP_CPU_SYNCF_TABLE (CYGHWR_HAL_POWERPC_VECTOR_BASE + 0x2900)"
+      puts $cdl_header "#define CYGHWR_HAL_SMP_CPU_ENTRY_TABLE (CYGHWR_HAL_POWERPC_VECTOR_BASE + 0x2a00)"
+      puts $cdl_header "#define CYGHWR_HAL_SMP_CPU_RUN_TABLE   (CYGHWR_HAL_POWERPC_VECTOR_BASE + 0x2b00)"
+      puts $cdl_header "#define CYGHWR_HAL_SMP_VSR_SYNCF_TABLE (CYGHWR_HAL_POWERPC_VECTOR_BASE + 0x2c00)"
+    }
+
+    define_proc {
+        puts $::cdl_system_header "#define CYGBLD_HAL_VARIANT_H  <pkgconf/hal_powerpc_qoriq.h>"
+    }
+
+    implements CYGINT_HAL_POWERPC_VARIANT
+
+    cdl_option CYGHWR_HAL_POWERPC_FPU {
+        display    "Variant FPU support"
+        calculated 1
+    }
+
+    cdl_option CYGPKG_HAL_POWERPC_MSBFIRST {
+        display    "CPU Variant big-endian"
+        calculated 1
+    }
+
+    define_proc {
+        puts $::cdl_header "#include <pkgconf/hal_powerpc.h>"
+    }
+
+    cdl_option CYGHWR_HAL_POWERPC_QORIQ {
+        display          "Freescale QorIQ variant (only e500mc based)"
+        flavor           data
+        default_value    {"P4080"}
+        legal_values     {"P2040" "P2041"
+                          "P3040" "P3041" 
+                          "P4040" "P4080"}
+        description      "The Freescale QorIQ has several variants. This HAL is 
+                          specific to the e500mc based QorIQ processor. The main 
+                          difference being the numbers of some peripherals,
+                          the size of L1/L2/L3 caches, the number of core etc."
+    }
+
+    cdl_option CYGSEM_HAL_POWERPC_QORIQ_E500MC_TRACE {
+        display        "Hardware Abstraction Layer Tracing"
+        default_value   0
+        flavor          bool
+        description    "
+            Enable debug trace at the variant level."
+    }
+
+    cdl_option CYGSEM_HAL_POWERPC_QORIQ_E500MC_PIC_MIXED_MODE {
+        display          "Enable QorIQ PIC in mixed mode"
+        default_value    1
+        description      "
+           The QorIQ Multicore Programmable Interrupt Controller (MPIC) can run
+            in mixed  or pass-through mode. This option will enable the PIC in 
+            mixed mode."
+    }
+
+    cdl_option CYGHWR_HAL_POWERPC_QORIQ_E500MC_CACHE_WRITE_SHADOW {
+        display       "Enable L1 in cache write shadow mode"
+        default_value 0
+        description   "
+            All updates to L1 cache is pushed to L2 cache."
+    }
+
+    cdl_option CYGHWR_HAL_POWERPC_QORIQ_E500MC_CACHE_STASHING {
+        display       "Enable L1 / L2 cache stashing"
+        default_value 0
+        description   "
+            When cache stashing is enable, cache stashing ID is 
+            configured as following: TBD.."
+    }
+
+    cdl_component CYGHWR_HAL_POWERPC_QORIQ_E500MC_ERRATUM {
+        display        "Apply software patches for the known silicon errata"
+        flavor         none
+        description    "
+            This section allows to uniquely select the errata to correct for."
+
+        cdl_option CYGHWR_HAL_POWERPC_QORIQ_E500MC_ERRATUM_A004510_A004511 {
+            display        "Errata A004510 and A004511"
+            flavor          bool
+            default_value   1
+            description   "
+               A004510: Transactions can be lost in the CoreNet coherency fabric.
+               A004511: Transactions may be incorrectly dropped from the wait queue 
+               in the CoreNet coherency fabric."
+        }
+
+        cdl_option CYGHWR_HAL_POWERPC_QORIQ_E500MC_ERRATUM_A003999 {
+            display        "Errata A003999"
+            flavor          bool
+            default_value   1
+            description   "
+               A003999: Running Floating Point instructions requires special 
+               initialization."
+        }
+
+        cdl_option CYGHWR_HAL_POWERPC_QORIQ_E500MC_ERRATUM_A003474 {
+            display        "Errata A003474"
+            flavor          bool
+            default_value   1
+            description   "
+               A-003474: Internal DDR calibration circuit is not supported."
+        }
+    }
+
+    cdl_option CYGHWR_HAL_POWERPC_QORIQ_SYS_CLK {
+        display          "System Clock (Hz)"
+        flavor           data
+        default_value    100000000
+        description      "
+            System clock frequency in Hz (input clock)"
+    }
+
+    cdl_option CYGHWR_HAL_POWERPC_QORIQ_PLF_CLK {
+        display          "Platform bus clock frequency (Hz)"
+        flavor           data
+        default_value    800000000
+        description      "
+            Platform Clock frequency in Hz, derived from the system clock."
+    }
+
+    cdl_option CYGHWR_HAL_POWERPC_QORIQ_DDR_CLK {
+        display          "DDR bus clock frequency (Hz)"
+        flavor           data
+        default_value    1300000000
+        description      "
+            DDR controller clock frequency equal to the data rate in MT/s."
+    }
+
+    cdl_option CYGHWR_HAL_POWERPC_CPU_SPEED {
+        display         "Core speed (Hz)"
+        flavor           data
+        default_value    1500000000
+        description      "
+             QorIQ e500mc core clock frequency."
+    }
+
+    # Real-time clock/counter specifics
+    cdl_component CYGNUM_HAL_RTC_CONSTANTS {
+        display       "Real-time clock constants."
+        description   "
+            Period is bus clock/4/CYGNUM_HAL_RTC_DENOMINATOR."
+        flavor        none
+        no_define
+    
+        cdl_option CYGNUM_HAL_RTC_NUMERATOR {
+            display       "Real-time clock numerator"
+            flavor        data
+            calculated    1000000000
+        }
+        cdl_option CYGNUM_HAL_RTC_DENOMINATOR {
+            display       "Real-time clock denominator"
+            flavor        data
+            default_value 100
+            description   "
+              This option selects the number of system clock 'ticks'
+              per second.  This rate is sometimes known as the heartbeat rate."
+        }
+        cdl_option CYGNUM_HAL_RTC_PERIOD {
+            display       "Real-time clock period"
+            flavor        data
+            calculated    { ((CYGHWR_HAL_POWERPC_QORIQ_PLF_CLK/16)/CYGNUM_HAL_RTC_DENOMINATOR) }
+        }
+    }
+
+    cdl_option CYGSEM_HAL_POWERPC_QORIQ_RTC_AUTORELOAD {
+        display       "Enable auto-reload of the e500 core RTC clock"
+        default_value 1
+        description   "
+            Enable Auto-reload of the decrementer after the period expired. 
+            This should be safe since the decrementer period is typically 10 ms."
+    }
+
+    cdl_option CYGSEM_HAL_POWERPC_QORIQ_HRESET_REQ_ENABLE {
+        display         "Enable CPU reset via HRESET_REQ signal"
+        default_value   1
+        description     "
+            Allow software to force assertion of HRESET_REQ. 
+            External hardware may then decide to issue the HW reset to the CPU."
+    }
+
+    cdl_option CYGSEM_HAL_QORIQ_WATCHDOG_ENABLE {
+        display          "Enable QorIQ watch-dog interrupt"
+        default_value    0
+        description      "
+           This option enable the watch-dog interrupt. The watch-dog interrupt 
+           is a critical interrupt. The user is responsible for starting up the 
+           watch-dog and acknowledging the interrupt."
+    }
+
+    cdl_option CYGVAR_HAL_DEFINED_HAL_DELAY_US {
+        display          "Variant defines its own hal_delay_us()."
+        default_value    1
+        description      "
+           Enable this option to allow the delay routine to be re-defined in the
+           QORIQ variant HAL."
+    }
+
+   cdl_option CYGNUM_HAL_VIRTUAL_VECTOR_CONSOLE_CHANNEL_BAUD {
+        display       "Baud rate for the HAL diagnostic port"
+        flavor        data
+        legal_values  { 50 75 110 "134_5" 150 200 300 600 1200 1800 2400 3600
+                      4800 7200 9600 14400 19200 38400 57600 115200 230400
+        }
+        default_value 38400
+        description   "
+            This option specifies the default baud rate (speed) for the 
+            HAL diagnostic port."
+   }
+
+   cdl_option CYGNUM_HAL_VIRTUAL_VECTOR_COMM_CHANNELS {
+       display      "Number of communication channels on the board"
+       flavor       data
+       calculated   1
+   }
+
+   cdl_option CYGNUM_HAL_VIRTUAL_VECTOR_DEBUG_CHANNEL {
+       display          "Debug serial port"
+       active_if        CYGPRI_HAL_VIRTUAL_VECTOR_DEBUG_CHANNEL_CONFIGURABLE
+       flavor data
+       legal_values     0 to CYGNUM_HAL_VIRTUAL_VECTOR_COMM_CHANNELS-1
+       default_value    0
+       description      "
+           The QorIQ variants can have many serial ports. This option
+           chooses which port will be used to connect to a host running GDB."
+    }
+
+    cdl_option CYGNUM_HAL_VIRTUAL_VECTOR_CONSOLE_CHANNEL {
+        display          "Diagnostic serial port"
+        active_if        CYGPRI_HAL_VIRTUAL_VECTOR_CONSOLE_CHANNEL_CONFIGURABLE
+        flavor data
+        legal_values     0 to CYGNUM_HAL_VIRTUAL_VECTOR_COMM_CHANNELS-1
+        default_value    0
+        description      "
+           This option chooses which of the serial ports 
+           will be used for diagnostic output."
+    }
+
+    # This option is only used when USE_ROM_MONITOR is enabled - but
+    # it cannot be a sub-option to that option, since the code uses the
+    # definition in a preprocessor comparison.
+    cdl_option CYGNUM_HAL_VIRTUAL_VECTOR_ROM_DEBUG_CHANNEL {
+        display          "Debug serial port used by ROM monitor"
+        flavor data
+        legal_values     0 to CYGNUM_HAL_VIRTUAL_VECTOR_COMM_CHANNELS-1
+        default_value    0
+        description      "
+           This option chooses which of the serial ports 
+           will be used for GDB debugging."
+    }
+
+    compile var_intr.c var_misc.c variant.S e500mc.S qoriq_diag.c e500mc_secondary.S var_smp.c
+
+    make {
+        <PREFIX>/lib/resetvect.o : <PACKAGE>/src/Reset.S
+        $(CC) -Wp,-MD,resetvect.tmp $(INCLUDE_PATH) $(CFLAGS) -c -o $@ $<
+        @echo $@ ": \\" > $(notdir $@).deps
+        @tail -n +2 resetvect.tmp >> $(notdir $@).deps
+        @echo >> $(notdir $@).deps
+        @rm resetvect.tmp
+    }
+
+    cdl_component CYGPKG_HAL_POWERPC_QORIQ_OPTIONS {
+        display "Freescale QorIQ build options"
+        flavor  none
+        description   "
+        Package specific build options including control over
+        compiler flags used only in building this package,
+        and details of which tests are built."
+
+
+        cdl_option CYGPKG_HAL_POWERPC_QORIQ_CFLAGS_ADD {
+            display "Additional compiler flags"
+            flavor  data
+            no_define
+            default_value { "" }
+            description   "
+                This option modifies the set of compiler flags for
+                building the QorIQ HAL. These flags are used in addition
+                to the set of global flags."
+        }
+
+        cdl_option CYGPKG_HAL_POWERPC_QORIQ_CFLAGS_REMOVE {
+            display "Suppressed compiler flags"
+            flavor  data
+            no_define
+            default_value { "" }
+            description   "
+                This option modifies the set of compiler flags for
+                building the QorIQ HAL. These flags are removed from
+                the set of global flags if present."
+        }
+
+        cdl_option CYGPKG_HAL_POWERPC_QORIQ_TESTS {
+            display "Freescale QORIQ tests"
+            flavor  data
+            no_define
+            calculated { "" }
+            description   "
+                This option specifies the set of tests for the Freescale QorIQ HAL."
+        }
+    }
+}

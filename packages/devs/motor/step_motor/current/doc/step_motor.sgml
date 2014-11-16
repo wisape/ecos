@@ -1,0 +1,220 @@
+<!-- DOCTYPE reference  PUBLIC "-//OASIS//DTD DocBook V3.1//EN" -->
+
+<!-- {{{ Banner                         -->
+
+<!-- =============================================================== -->
+<!--                                                                 -->
+<!--     step_motor.sgml                                               -->
+<!--                                                                 -->
+<!--     Driving Step Motors with CPU GPIOs.                -->
+<!--                                                                 -->
+<!-- =============================================================== -->
+<!-- ####ECOSDOCCOPYRIGHTBEGIN####                                   -->
+<!-- =============================================================== -->
+<!-- Copyright (C) 2010 Free Software Foundation, Inc.               -->
+<!-- This material may be distributed only subject to the terms      -->
+<!-- and conditions set forth in the Open Publication License, v1.0  -->
+<!-- or later (the latest version is presently available at          -->
+<!-- http://www.opencontent.org/openpub/)                            -->
+<!-- Distribution of the work or derivative of the work in any       -->
+<!-- standard (paper) book form is prohibited unless prior           -->
+<!-- permission obtained from the copyright holder                   -->
+<!-- =============================================================== -->
+<!-- ####ECOSDOCCOPYRIGHTEND####                                     -->
+<!-- =============================================================== -->
+<!-- #####DESCRIPTIONBEGIN####                                       -->
+<!--                                                                 -->
+<!-- Author(s):   ccoutand                                           -->
+<!-- Contact(s):                                                     -->
+<!-- Date:        2010/10/23                                         -->
+<!-- Version:     0.01                                               -->
+<!--                                                                 -->
+<!-- ####DESCRIPTIONEND####                                          -->
+<!-- =============================================================== -->
+
+<!-- }}} -->
+<part id="io-ss"><title>Step Motor Device Interface</title>
+
+  <!-- {{{ Step Motor Device Driver  -->
+  <chapter id="devs-step_motor">
+      <title>Step Motor Device Interface</title>
+
+       <!-- {{{ Step Motor Introduction -->
+      <section id="devs-step_motor-introduction">
+      <title>Introduction</title>
+
+      <para>
+        The step motor device driver package (CYGPKG_DEVS_STEP_MOTOR) provides a generic 
+        interface to unipolar and bipolar step motors using 4 control signals. The 4 control signals 
+        are general purpose IOs of the processor. This package is dependent upon the GPIO IO package.
+      </para>
+
+      <para>
+        This section details the concept behind the driver and the user interface to the package.
+      </para>
+     </section>
+     <!-- }}} -->    
+
+      <!-- {{{ Step Motor Concept -->
+     <section id="devs-step_motor-concept">
+     <title>The Concept</title>
+
+     <para>
+        Step motors can either be of bipolar or unipolar type. The unipolar type often have 6 wires, 
+        two ends plus a center tap for each winding as shown on the following figure. It is common 
+        that both center taps are connected together to form a 5 wires unipolar step motor. Unipolar 
+        step motors required a single power source. The center taps are connected to the positive 
+        DC power supply and each winding ends is grounded alternatively to create the rotation. 
+     </para>
+     <para>
+        The bipolar type is simpler by not having the winding center tap. However, it is no longer
+        sufficient to ground each winding ends alternatively to create the rotation. Instead, it is the
+        polarity of each winding ends that shall be switched alternatively.
+     </para>
+     <para>
+        Both bipolar and unipolar step motors can be controlled similarly using 4 controls signal, A, 
+        !A, B and !B. The sequence for these control signals does not depend upon the step motor 
+        type. However, the interface between the GPIOs of the processor and the step motor can be
+        different. H-bridge are often used with biplor step motors. Several alternatives are possible 
+        but not described in this document.
+     </para>
+
+    <informalfigure PgWide=1>
+      <mediaobject>
+        <imageobject
+          <imagedata fileref="model.png" Scalefit=1 Align="Center">
+        </imageobject>
+      </mediaobject>
+    </informalfigure>
+
+     <para>
+        eCos step motor driver includes both the full and half step control sequence. The full step 
+        control sequence is as following:
+     </para>
+
+     <programlisting>
+                A     B     !A     !B
+     step1   high  high    low    low
+     step2    low  high   high    low
+     step3    low   low   high   high
+     step4   high   low    low   high
+     </programlisting>
+
+     </section>
+     <!-- }}} -->    
+
+      <!-- {{{ Step Motor Details -->
+     <section id="devs-step_motor-details"><title>Details</title>
+
+      <!-- {{{ Step Motor Mode -->
+     <section id="devs-step_motor-mode"><title>Stepping mode</title>
+
+     <para>
+     The step motor driving mode can be varied by calling a
+     <function>set_config</function> function at the device IO API
+     level. The following function shows how this is done:
+     </para>
+     <programlisting width=72>
+     int set_step_motor_mode( cyg_io_handle_t handle, int mode )
+     {
+         cyg_step_motor_info_t info;
+         cyg_uint32 len = sizeof(info);
+
+         info.mode = mode;
+
+         return cyg_io_set_config( handle,
+                              CYG_DEVS_SET_CONFIG_STEP_MOTOR_MODE,
+                              &amp;info,
+                              &amp;len);
+     }
+     </programlisting>
+     <para>
+     The step motor can be driven either in full or half step mode using the following options:
+     </para>
+     <programlisting width=72>
+     CYG_DEVS_STEP_MOTOR_HALF_STEP
+     CYG_DEVS_STEP_MOTOR_FULL_STEP
+     </programlisting>
+     </section>
+     <!-- }}} -->    
+
+
+      <!-- {{{ Driving Step Motor -->
+     <section id="devs-step_motor-driving"><title>Driving the step motor</title>
+
+     <para>
+     In this example, the step motor is controlled through the device IO API. For each call, the
+     user must specify in which direction the motor shall rotate, the speed of the rotation and 
+     the number of steps to complete. This is a blocking call that will return once the rotation
+     is completed.
+     </para>
+     <programlisting width=72>
+     int step_motor_drive_forward( cyg_io_handle_t handle, cyg_uint32 steps, \
+                                                cyg_uint32 speed )
+     {
+         cyg_step_motor_data_t mdata;
+         cyg_uint32 len = sizeof(mdata);
+
+         mdata.direction = CYG_DEVS_STEP_MOTOR_DIR_FORWARD;
+         mdata.steps = steps;
+         mdata.speed = speed;
+         
+         return cyg_io_write( handle, &amp;mdata, &amp;len );
+     }
+     </programlisting>
+     <para>
+     The step motor direction is defined by the foward and backward constants:
+     </para>
+     <programlisting width=72>
+     CYG_DEVS_STEP_MOTOR_DIR_FORWARD
+     CYG_DEVS_STEP_MOTOR_DIR_BACKWARD
+     </programlisting>
+     </section>
+     <!-- }}} -->    
+
+     </section>
+     <!-- }}} -->    
+
+
+      <!-- {{{ Step Motor Configuration -->
+     <section id="devs-step_motor-configuration">
+     <title>Package Configuration</title>
+
+     <section>
+     <title><!-- <index></index> -->IOs setting</title>
+     <para>
+     To drive the 4 wires step motor, 4 GPIOs of the processor must be selected to do the task. 
+     The 4 GPIOs are named IO_A, IO_B, IO_A_BAR and IO_B_BAR. The connection to the 
+     step motor are described in the previous section (The Concept). The step motor driver can
+     potentially be updated to have several interfaces. IOs for the first step motor interface are
+     defined with the following CDL configuration:
+     </para>
+   <programlisting width=72>
+     CYGDAT_DEVS_STEP_MOTOR0_IO_A
+     CYGDAT_DEVS_STEP_MOTOR0_IO_B
+     CYGDAT_DEVS_STEP_MOTOR0_IO_A_BAR
+     CYGDAT_DEVS_STEP_MOTOR0_IO_B_BAR
+     </programlisting>
+     </section>
+
+     <section>
+     <title><!-- <index></index> -->Step Motor Setting</title>
+     <para>
+     The step motor shall be characterized with its maximum speed in [tr/min] and the number
+     of steps required to complete a full rotation.
+     </para>
+     <programlisting width=72>
+     CYGDAT_DEVS_STEP_MOTOR0_STEPS
+     CYGDAT_DEVS_STEP_MOTOR0_MAX_SPEED 
+     </programlisting>
+     </section>
+
+     </section>
+     <!-- }}} -->
+
+  </chapter>
+   <!-- }}} -->
+
+</part>
+
+  

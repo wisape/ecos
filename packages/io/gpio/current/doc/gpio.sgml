@@ -1,0 +1,198 @@
+<!-- DOCTYPE reference  PUBLIC "-//OASIS//DTD DocBook V3.1//EN" -->
+
+<!-- {{{ Banner                         -->
+
+<!-- =============================================================== -->
+<!--                                                                 -->
+<!--     gpio.sgml                                               -->
+<!--                                                                 -->
+<!--     Generic API for accessing GPIO.                -->
+<!--                                                                 -->
+<!-- =============================================================== -->
+<!-- ####ECOSDOCCOPYRIGHTBEGIN####                                   -->
+<!-- =============================================================== -->
+<!-- Copyright (C) 2008 Free Software Foundation, Inc.               -->
+<!-- This material may be distributed only subject to the terms      -->
+<!-- and conditions set forth in the Open Publication License, v1.0  -->
+<!-- or later (the latest version is presently available at          -->
+<!-- http://www.opencontent.org/openpub/)                            -->
+<!-- Distribution of the work or derivative of the work in any       -->
+<!-- standard (paper) book form is prohibited unless prior           -->
+<!-- permission obtained from the copyright holder                   -->
+<!-- =============================================================== -->
+<!-- ####ECOSDOCCOPYRIGHTEND####                                     -->
+<!-- =============================================================== -->
+<!-- #####DESCRIPTIONBEGIN####                                       -->
+<!--                                                                 -->
+<!-- Author(s):   ccoutand                                           -->
+<!-- Contact(s):                                                     -->
+<!-- Date:        2010/10/23                                         -->
+<!-- Version:     0.01                                               -->
+<!--                                                                 -->
+<!-- ####DESCRIPTIONEND####                                          -->
+<!-- =============================================================== -->
+
+<!-- }}} -->
+
+  <!-- {{{ The chapter is part of the IO package Section -->
+  <chapter id="io-gpio">
+      <title>General Purpose IOs (GPIO)</title>
+      <para>
+        The GPIO package (CYGPKG_IO_GPIO) provides generic definitions to access and
+        configure the General Purpose IOs of a processor. The package provides a set of functions 
+        definition that are required to be implemented by the HAL. HAL supporting the sets of
+        defined functions must implement CYGINT_IO_GPIO_ROUTINE.
+      </para>
+
+      <para>
+        This section details the GPIO interface. This API is defined in the header file <filename>cyg/io/gpio.h</filename>.
+        The functions are implemented inline for efficienty reasons at the expense of code size.
+      </para>
+
+      <!-- {{{ GPIO API -->
+     <section id="io-gpio-api">
+     <title>The API</title>
+
+      <!-- {{{ GPIO API: cyg_hal_gpio_write -->
+     <section>
+     <title><!-- <index></index> -->cyg_hal_gpio_write</title>
+     <variablelist>
+     <varlistentry>
+          <term>Type:</term>
+          <listitem>
+          <programlisting>
+               inline void <function><!-- <index></index> -->cyg_hal_gpio_write</function>( 
+               cyg_gpio_t <parameter>gpio</parameter>,
+               cyg_gpio_state_t <parameter>state</parameter>)
+               </programlisting>
+          </listitem>
+     </varlistentry>
+
+     <varlistentry>
+          <term>Fields:</term>
+          <listitem>
+          <para><parameter>gpio</parameter> - GPIO identifier</para>
+          <para><parameter>state</parameter> - State of the GPIO</para>
+          </listitem>
+     </varlistentry>
+
+     <varlistentry>
+          <term>Result: </term>
+          <listitem>
+          <para>None</para>
+          </listitem>
+     </varlistentry>
+
+     <varlistentry>
+          <term>Description: </term>
+          <listitem>
+          <para>
+            <function>cyg_hal_gpio_write</function> changes the state of a GPIO.
+          </para>
+          </listitem>
+     </varlistentry>
+     </variablelist>
+     </section>
+     <!-- }}} -->
+ 
+      <!-- {{{ GPIO API: cyg_hal_gpio_read -->
+     <section>
+     <title><!-- <index></index> --> cyg_hal_gpio_read</title>
+     <variablelist>
+     <varlistentry>
+          <term>Type:</term>
+          <listitem>
+          <programlisting>
+          inline cyg_gpio_state_t <function><!-- <index></index> -->cyg_hal_gpio_read</function>( 
+          cyg_gpio_t <parameter>gpio</parameter>)
+          </programlisting>
+          </listitem>
+     </varlistentry>
+
+     <varlistentry>
+          <term>Fields:</term>
+          <listitem>
+          <para><parameter>gpio</parameter> - GPIO identifier</para>
+          </listitem>
+     </varlistentry>
+
+     <varlistentry>
+          <term>Result: </term>
+          <listitem>
+          <para> Current state of the GPIO</para>
+          </listitem>
+     </varlistentry>
+
+     <varlistentry>
+          <term>Description: </term>
+          <listitem>
+          <para>
+           <function>cyg_hal_gpio_read</function> returns the current state of a GPIO.
+          </para>
+          </listitem>
+     </varlistentry>
+     </variablelist>
+     </section>
+     <!-- }}} -->
+ 
+      <!-- {{{ GPIO API: cyg_hal_gpio_cfg -->
+     <section>
+     <title><!-- <index></index> --> cyg_hal_gpio_cfg</title>
+     <variablelist>
+     <varlistentry>
+          <term>Type:</term>
+          <listitem>
+          <programlisting>
+          inline void <function><!-- <index></index> -->cyg_hal_gpio_cfg</function>( 
+          cyg_gpio_t <parameter>gpio</parameter>,
+          cyg_gpio_mode_t <parameter>mode</parameter>)
+          </programlisting>
+          </listitem>
+     </varlistentry>
+
+     <varlistentry>
+          <term>Fields:</term>
+          <listitem>
+          <para><parameter>gpio</parameter> - GPIO identifier</para>
+          <para><parameter>mode</parameter> - Mode / specifics of the GPIO</para>
+          </listitem>
+     </varlistentry>
+
+     <varlistentry>
+          <term>Result: </term>
+          <listitem>
+          <para>None</para>
+          </listitem>
+     </varlistentry>
+
+     <varlistentry>
+          <term>Description: </term>
+          <listitem>
+          <para>
+           <function>cyg_hal_gpio_cfg</function> configures the GPIO. The HAL is not required to implement all
+             set of possible configuration options. Only the relevant options to the specific target must be implemented.
+             The typical use of the function is to set the IO direction. 
+          </para>
+          <para>
+           The GPIO package currently support the following IO mode:
+          </para>
+          <programlisting>
+             CYG_GPIO_IN         // IO in input mode
+             CYG_GPIO_OUT        // IO in output mode
+             CYG_GPIO_PULLUP     // Insert pullup
+             CYG_GPIO_PULLDOWN   // Insert pulldown
+          </programlisting>
+          </listitem>
+     </varlistentry>
+     </variablelist>
+     </section>
+     <!-- }}} -->
+
+     </section>
+     <!-- }}} -->
+
+  </chapter>
+
+  <!-- }}} -->
+
+  

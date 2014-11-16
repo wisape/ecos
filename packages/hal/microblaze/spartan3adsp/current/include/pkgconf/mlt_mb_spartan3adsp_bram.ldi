@@ -1,0 +1,33 @@
+// eCos memory layout
+
+#include <pkgconf/hal.h>
+#include <cyg/infra/cyg_type.inc>
+
+MEMORY
+{
+    bram  : ORIGIN = 0x00000000, LENGTH = 0x00020000-CYGNUM_HAL_MICROBLAZE_COMMON_INTERRUPTS_STACK_SIZE
+}
+
+SECTIONS
+{
+    SECTIONS_BEGIN
+    SECTION_vectors (bram, 0x00000000, LMA_EQ_VMA)
+    CYG_LABEL_DEFN(__reserved_vectors) = 0; . = CYG_LABEL_DEFN(__reserved_vectors) + 0x1000;
+    CYG_LABEL_DEFN(__reserved_vsr_table) = ALIGN (0x1); . = CYG_LABEL_DEFN(__reserved_vsr_table) + 0x200;
+    CYG_LABEL_DEFN(__reserved_virtual_table) = ALIGN (0x1); . = CYG_LABEL_DEFN(__reserved_virtual_table) + 0x100;
+    SECTION_text (bram, ALIGN (0x8), LMA_EQ_VMA)
+    SECTION_fini (bram, ALIGN (0x8), LMA_EQ_VMA)
+    SECTION_rodata (bram, ALIGN(0x8), LMA_EQ_VMA)
+    SECTION_rodata1 (bram, ALIGN (0x8), LMA_EQ_VMA)
+    SECTION_fixup (bram, ALIGN (0x8), LMA_EQ_VMA)
+    SECTION_gcc_except_table (bram, ALIGN (0x8), LMA_EQ_VMA)
+    SECTION_eh_frame (bram, ALIGN (0x8), LMA_EQ_VMA)
+    SECTION_data (bram, ALIGN (0x8), LMA_EQ_VMA)
+    SECTION_bss (bram, ALIGN (0x8), LMA_EQ_VMA)
+    CYG_LABEL_DEFN(__heap1) = ALIGN (0x8);
+    SECTIONS_END
+}
+
+hal_startup_stack        = 0x00020000;
+hal_vsr_table            = (0x1000);
+hal_virtual_vector_table = (0x1000 + 0x200);

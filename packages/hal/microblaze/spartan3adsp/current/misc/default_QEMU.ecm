@@ -1,0 +1,56 @@
+cdl_savefile_version 1;
+cdl_savefile_command cdl_savefile_version {};
+cdl_savefile_command cdl_savefile_command {};
+cdl_savefile_command cdl_configuration { description hardware template package };
+cdl_savefile_command cdl_package { value_source user_value wizard_value inferred_value };
+cdl_savefile_command cdl_component { value_source user_value wizard_value inferred_value };
+cdl_savefile_command cdl_option { value_source user_value wizard_value inferred_value };
+cdl_savefile_command cdl_interface { value_source user_value wizard_value inferred_value };
+
+cdl_configuration eCos {
+    description "" ;
+    template    default ;
+
+    package CYGPKG_KERNEL current ;
+};
+
+cdl_option CYGNUM_HAL_MICROBLAZE_SYSCLOCK_FREQ {
+    user_value 65000000
+}
+
+cdl_option CYGPKG_HAL_MICROBLAZE_IPC_BLOCK {
+    user_value XPS_INTC
+};
+
+cdl_option CYGPKG_HAL_MICROBLAZE_IPC_BLOCK_BASE {
+    user_value 0x81800000
+};
+
+cdl_option CYGPKG_HAL_MICROBLAZE_RTC_BLOCK {
+    user_value XPS_TIMER
+};
+
+cdl_option CYGPKG_HAL_MICROBLAZE_RTC_BLOCK_BASE {
+    user_value 0x83C00000
+};
+
+cdl_option CYGNUM_HAL_MICROBLAZE_RTC_IRQNUM {
+    user_value 0
+};
+
+cdl_option CYGPKG_HAL_MICROBLAZE_UART_BLOCK {
+    user_value XPS_UARTLITE
+};
+
+cdl_option CYGPKG_HAL_MICROBLAZE_UART0_BASE {
+    user_value 0x84000000
+};
+
+cdl_option CYGNUM_HAL_MICROBLAZE_UART0_IRQNUM {
+    user_value 3
+};
+
+cdl_option CYG_HAL_STARTUP {
+    user_value QEMU
+};
+

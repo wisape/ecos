@@ -1,0 +1,46 @@
+
+2010-11-28  Christophe Coutand <ccoutand@stmi.com>
+
+   * cdl/libfdt.cdl:
+   * src/fdt.c
+   * src/fdt_ro.c
+   * src/fdt_rw.c
+   * src/fdt_strerror.c
+   * src/fdt_sw.c
+   * src/fdt_wip.c
+   * include/fdt.h
+   * include/libfdt_env.h
+   * include/libfdt.h
+   * include/libfdt_internal.h
+   * doc/dts-format.txt
+   * doc/manual.txt
+   * doc/README.license
+     original:
+      git://git.jdl.com/software/dtc.git
+      commit   37c0b6a0916c31a5eae0a9ddfcc5d0b8fb4569c6
+      tree     26035a19464d9a564939f0ad9ac360f5ae005506
+      parent   73ae43ea44a40c2ac00dd94523f270177a1e72e9
+
+//===========================================================================
+// ####GPLCOPYRIGHTBEGIN####                                                
+// -------------------------------------------                              
+// This file is part of eCos, the Embedded Configurable Operating System.   
+// Copyright (C) 2010 Free Software Foundation, Inc.            
+//
+// This program is free software; you can redistribute it and/or modify     
+// it under the terms of the GNU General Public License as published by     
+// the Free Software Foundation; either version 2 or (at your option) any   
+// later version.                                                           
+//
+// This program is distributed in the hope that it will be useful, but      
+// WITHOUT ANY WARRANTY; without even the implied warranty of               
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU        
+// General Public License for more details.                                 
+//
+// You should have received a copy of the GNU General Public License        
+// along with this program; if not, write to the                            
+// Free Software Foundation, Inc., 51 Franklin Street,                      
+// Fifth Floor, Boston, MA  02110-1301, USA.                                
+// -------------------------------------------                              
+// ####GPLCOPYRIGHTEND####                                                  
+//===========================================================================

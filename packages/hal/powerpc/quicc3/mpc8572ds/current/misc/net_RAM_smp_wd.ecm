@@ -1,0 +1,134 @@
+cdl_savefile_version 1;
+cdl_savefile_command cdl_savefile_version {};
+cdl_savefile_command cdl_savefile_command {};
+cdl_savefile_command cdl_configuration { description hardware template package };
+cdl_savefile_command cdl_package { value_source user_value wizard_value inferred_value };
+cdl_savefile_command cdl_component { value_source user_value wizard_value inferred_value };
+cdl_savefile_command cdl_option { value_source user_value wizard_value inferred_value };
+cdl_savefile_command cdl_interface { value_source user_value wizard_value inferred_value };
+
+cdl_configuration eCos {
+    description "" ;
+    # These fields should not be modified.
+    hardware    mpc8572ds ;
+    template    net ;
+    package -hardware CYGPKG_HAL_POWERPC current ;
+    package -hardware CYGPKG_IO_SERIAL_POWERPC_QUICC3 current ;
+    package -hardware CYGPKG_HAL_POWERPC_QUICC3 current ;
+    package -hardware CYGPKG_IO_FILEIO current ;
+    package -hardware CYGPKG_HAL_POWERPC_MPC8572DS current ;
+    package -hardware CYGPKG_DEVS_FLASH_MPC8572DS current ;
+    package -hardware CYGPKG_DEVS_FLASH_AMD_AM29XXXXX current ;
+    package -hardware CYGPKG_DEVS_ETH_POWERPC_MPC8572DS current ;
+    package -hardware CYGPKG_DEVS_ETH_PHY current ;
+    package -hardware CYGPKG_DEVS_ETH_POWERPC_TSEC current ;
+    package -hardware CYGPKG_IO_FLASH current ;
+    package -template CYGPKG_HAL current ;
+    package -template CYGPKG_IO current ;
+    package -template CYGPKG_IO_SERIAL current ;
+    package -template CYGPKG_INFRA current ;
+    package -template CYGPKG_KERNEL current ;
+    package -template CYGPKG_MEMALLOC current ;
+    package -template CYGPKG_ISOINFRA current ;
+    package -template CYGPKG_LIBC current ;
+    package -template CYGPKG_LIBC_I18N current ;
+    package -template CYGPKG_LIBC_SETJMP current ;
+    package -template CYGPKG_LIBC_SIGNALS current ;
+    package -template CYGPKG_LIBC_STARTUP current ;
+    package -template CYGPKG_LIBC_STDIO current ;
+    package -template CYGPKG_LIBC_STDLIB current ;
+    package -template CYGPKG_LIBC_STRING current ;
+    package -template CYGPKG_LIBC_TIME current ;
+    package -template CYGPKG_LIBM current ;
+    package -template CYGPKG_IO_WALLCLOCK current ;
+    package -template CYGPKG_ERROR current ;
+    package -template CYGPKG_POSIX current ;
+    package -template CYGPKG_IO_ETH_DRIVERS current ;
+    package -template CYGPKG_NET  current ;
+    package -template CYGPKG_NET_FREEBSD_STACK current ;
+    package -template CYGPKG_HTTPD current ;
+};
+
+cdl_option CYGSEM_HAL_USE_ROM_MONITOR {
+  user_value 0
+};
+
+cdl_option CYGHWR_HAL_POWERPC_BOOK_E {
+  user_value 1
+};
+
+cdl_option CYGHWR_HAL_POWERPC_E500_CORE {
+  user_value 1
+};
+
+cdl_option CYGHWR_HAL_POWERPC_E500 {
+  user_value "v1"
+};
+
+cdl_component CYG_HAL_STARTUP {
+  user_value RAM
+};
+
+cdl_option CYGSEM_HAL_QUICC3_WATCHDOG_ENABLE {
+    user_value 1
+};
+
+cdl_option CYGDAT_IO_SERIAL_TTY_CONSOLE {
+  user_value "\"/dev/tty0\""
+};
+
+cdl_component CYGPKG_IO_SERIAL_TTY_TTY0 {
+  user_value 1
+};
+
+cdl_component CYGPKG_IO_SERIAL_DEVICES {
+  user_value 1
+};
+
+cdl_option CYGDAT_LIBC_STDIO_DEFAULT_CONSOLE {
+  user_value "\"/dev/tty0\""
+};
+
+cdl_component CYGDBG_HAL_DIAG_TO_DEBUG_CHAN {
+  user_value 0
+};
+
+cdl_option CYGHWR_DEVS_FLASH_AMD_S29GL01GP {
+  user_value 1
+};
+
+cdl_component CYGPKG_HAL_SMP_SUPPORT {
+  user_value 1
+};
+
+cdl_option CYGPKG_HAL_SMP_CPU_MAX {
+  user_value 2
+};
+
+cdl_component CYGPKG_KERNEL_SMP_SUPPORT {
+  user_value 1
+};
+
+cdl_option CYGNUM_DEVS_ETH_POWERPC_TSEC_RxNUM {
+  user_value 512
+};
+
+cdl_component CYGHWR_NET_DRIVER_ETH0_ADDRS {
+  user_value 1
+};
+
+cdl_option CYGHWR_NET_DRIVER_ETH0_ADDRS_IP {
+  user_value 137.133.126.40
+};
+
+cdl_option CYGHWR_NET_DRIVER_ETH0_ADDRS_NETMASK {
+  user_value 255.255.248.0
+};
+
+cdl_component CYGPKG_NET_DHCP {
+  user_value 0
+};
+
+cdl_option CYGHWR_HAL_POWERPC_ENABLE_L2_CACHE {
+    user_value 1
+};

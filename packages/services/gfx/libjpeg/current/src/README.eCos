@@ -1,0 +1,6 @@
+This is porting of the JPEG release 9a to eCos
+
+Only the needed files are kept, other files/directories are removed for
+better clarity.
+
+All changes related to eCos are under #ifdef __ECOS__

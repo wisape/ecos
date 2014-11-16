@@ -1,0 +1,301 @@
+##==========================================================================
+##
+##      hal_mb_spartan3an.cdl
+##
+##      Microblaze Spartan-3AN HAL configuration data
+##
+##==========================================================================
+## ####ECOSGPLCOPYRIGHTBEGIN####                                            
+## -------------------------------------------                              
+## This file is part of eCos, the Embedded Configurable Operating System.   
+## Copyright (C) 2011 Free Software Foundation, Inc.                        
+##
+## eCos is free software; you can redistribute it and/or modify it under    
+## the terms of the GNU General Public License as published by the Free     
+## Software Foundation; either version 2 or (at your option) any later      
+## version.                                                                 
+##
+## eCos is distributed in the hope that it will be useful, but WITHOUT      
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    
+## FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License    
+## for more details.                                                        
+##
+## You should have received a copy of the GNU General Public License        
+## along with eCos; if not, write to the Free Software Foundation, Inc.,    
+## 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.            
+##
+## As a special exception, if other files instantiate templates or use      
+## macros or inline functions from this file, or you compile this file      
+## and link it with other works to produce a work based on this file,       
+## this file does not by itself cause the resulting work to be covered by   
+## the GNU General Public License. However the source code for this file    
+## must still be made available in accordance with section (3) of the GNU   
+## General Public License v2.                                               
+##
+## This exception does not invalidate any other reasons why a work based    
+## on this file might be covered by the GNU General Public License.         
+## -------------------------------------------                              
+## ####ECOSGPLCOPYRIGHTEND####                                              
+##==========================================================================
+#######DESCRIPTIONBEGIN####
+##
+## Author(s):    ccoutand
+## Date:         2011-02-01
+##
+######DESCRIPTIONEND####
+##
+##==========================================================================
+
+cdl_package CYGPKG_HAL_MICROBLAZE_SPARTAN3AN {
+    display       "Xilinx Spartan-3AN Development Board"
+
+    include_dir   cyg/hal
+    define_header hal_mb_spartan3an.h
+    compile       mb_spartan3an_misc.c
+
+    parent        CYGPKG_HAL_MICROBLAZE
+    hardware
+
+    requires      { CYGPKG_HAL_MICROBLAZE_UART0 }
+
+    requires      { is_active(CYGPKG_DEVS_ETH_PHY) implies
+                    (1 == CYGHWR_DEVS_ETH_PHY_LAN8700) }
+
+    description   "
+        The Xilinx Spartan-3AN HAL package provides the support needed to run
+        eCos on the Xilinx Spartan-3AN Development Board."
+
+    define_proc {
+        puts $::cdl_system_header "#define CYGBLD_HAL_PLATFORM_H  <pkgconf/hal_mb_spartan3an.h>"
+        puts $::cdl_header "#define HAL_PLATFORM_BOARD  \"Xilinx Spartan-3AN\""
+        puts $::cdl_header "#define HAL_PLATFORM_EXTRA  \"\""
+    }
+
+    cdl_component CYGBLD_GLOBAL_OPTIONS {
+        display "Global build options"
+        flavor  none
+        parent  CYGPKG_NONE
+        description   "
+        Global build options including control over
+        compiler flags, linker flags and choice of toolchain."
+
+
+        cdl_option CYGBLD_GLOBAL_COMMAND_PREFIX {
+            display "Global command prefix"
+            flavor  data
+            no_define
+            default_value { "microblaze-elf" }
+            description "
+                This option specifies the command prefix used when
+                invoking the build tools."
+        }
+
+        cdl_option CYGBLD_GLOBAL_CFLAGS {
+            display "Global compiler flags"
+            flavor  data
+            no_define
+            default_value { CYGBLD_GLOBAL_WARNFLAGS . "-mcpu=v7.30.a -g -O2 -ffunction-sections -fdata-sections -fno-rtti -fno-exceptions -mno-xl-soft-mul -mno-xl-pattern-compare" }
+            description   "
+                This option controls the global compiler flags which are used to
+                compile all packages by default. Individual packages may define
+                options which override these global flags."
+        }
+
+        cdl_option CYGBLD_GLOBAL_LDFLAGS {
+            display "Global linker flags"
+            flavor  data
+            no_define
+            default_value { "-g -nostdlib -Wl,-no-relax -Wl,--gc-sections -Wl,-static" }
+            description   "
+                This option controls the global linker flags. Individual
+                packages may define options which override these global flags."
+        }
+    }
+
+    cdl_component CYG_HAL_STARTUP {
+        display       "Startup type"
+        flavor        data
+        default_value {"RAM"}
+        legal_values  {"RAM" "ROM" "ROMRAM" "JTAG"}
+        no_define
+        define -file system.h CYG_HAL_STARTUP
+        description   "
+            Select 'RAM' when building programs to load into RAM using onboard
+            debug software such as RedBoot or eCos GDB stubs.  Select 'ROM'
+            when building a stand-alone application which will be put
+            into ROM.Select 'JTAG' when building application that shall be
+            loaded to RAM using the JTAG interface."
+    }
+
+    cdl_option CYGNUM_TEXT_SECTION_OFFSET {
+        display        "Offset start of the text section"
+        active_if      { CYG_HAL_STARTUP != "ROM"     && 
+                         CYG_HAL_STARTUP != "ROMRAM" }
+        flavor          data
+        default_value   0x100000
+        description    "
+            When loading the application to RAM, select where the text section
+            should start compare to the RAM base address. Default value leaves
+            1MB free for redboot."
+    }
+
+    cdl_component CYGPKG_HAL_MICROBLAZE_SPARTAN3AN_CACHES {
+        display       "Configure Caches"
+        flavor         none
+        description   "
+            This option allows to enable the instruction and data caches and
+            provide the geometry of the caches."
+
+        cdl_component CYGSEM_HAL_PLF_ICACHE_ENABLE {
+            display         "Instruction Cache"
+            flavor          bool
+            default_value   0
+            description     "
+               Configure the Instruction cache."
+
+            cdl_option CYGNUM_HAL_ICACHE_SIZE {
+                display        "Select cache size in Bytes"
+                flavor          data
+                default_value   2048
+                description     "
+                   Select the cache size in Bytes. Must be a power of 2."
+            }
+
+            cdl_option CYGNUM_HAL_ICACHE_LINE_SIZE {
+                display         "Select cache line size in Bytes"
+                flavor          data
+                legal_values    {16 32}
+                default_value   16
+                description     "
+                   Select the cache line size in Bytes."
+            }
+        }
+
+        cdl_component CYGSEM_HAL_PLF_DCACHE_ENABLE {
+            display         "Data Cache"
+            flavor           bool
+            default_value    0
+            description     "
+               Configure the Data cache. Cache policy (Copyback or Write-through 
+               is controlled from CYGSEM_HAL_DCACHE_STARTUP_MODE)."
+
+            cdl_option CYGNUM_HAL_DCACHE_CACHEABLE_BASE_ADDRESS {
+                display        "Select base address of a cacheable memory area"
+                flavor          data
+                default_value   CYGHWR_MEMORY_SDRAM_BASE_ADDRESS
+                description     "
+                   The address is default set to the external RAM memory."
+            }
+
+            cdl_option CYGNUM_HAL_DCACHE_SIZE {
+                display        "Select cache size in Bytes"
+                flavor          data
+                default_value   2048
+                description     "
+                   Select the cache size in Bytes. Must be a power of 2."
+            }
+
+            cdl_option CYGNUM_HAL_DCACHE_LINE_SIZE {
+                display         "Select cache line size in Bytes"
+                flavor          data
+                legal_values    {16 32}
+                default_value   16
+                description     "
+                   Select the cache line size in Bytes."
+            }
+        }
+    }
+
+    cdl_component CYGHWR_MEMORY_LAYOUT {
+        display "Memory layout"
+        flavor data
+        no_define
+        calculated    { ( CYG_HAL_STARTUP == "RAM" &&    CYGHWR_HAL_MICROBLAZE_BRAM_STORE_VECTORS )     ? "mb_spartan3an_ram"           :
+                        ( CYG_HAL_STARTUP == "JTAG" &&   CYGHWR_HAL_MICROBLAZE_BRAM_STORE_VECTORS )     ? "mb_spartan3an_ram"           :
+                        ( CYG_HAL_STARTUP == "ROM" &&    CYGHWR_HAL_MICROBLAZE_BRAM_STORE_VECTORS )     ? "mb_spartan3an_rom"           :
+                        ( CYG_HAL_STARTUP == "ROMRAM" && CYGHWR_HAL_MICROBLAZE_BRAM_STORE_VECTORS )     ? "mb_spartan3an_romram"        :
+                        ( CYG_HAL_STARTUP == "ROM" &&  ! CYGHWR_HAL_MICROBLAZE_BRAM_STORE_VECTORS )     ? "mb_spartan3an_rom_nobram"    :
+                        ( CYG_HAL_STARTUP == "RAM" &&  ! CYGHWR_HAL_MICROBLAZE_BRAM_STORE_VECTORS )     ? "mb_spartan3an_ram_nobram"    :
+                        ( CYG_HAL_STARTUP == "JTAG" && ! CYGHWR_HAL_MICROBLAZE_BRAM_STORE_VECTORS )     ? "mb_spartan3an_ram_nobram"    :
+                        ( CYG_HAL_STARTUP == "ROMRAM" && ! CYGHWR_HAL_MICROBLAZE_BRAM_STORE_VECTORS )   ? "mb_spartan3an_romram_nobram" :
+                                                                                                          "undefined" }
+
+        cdl_option CYGHWR_MEMORY_LAYOUT_LDI {
+                display "Memory layout linker script fragment"
+                flavor data
+                no_define
+                define -file system.h CYGHWR_MEMORY_LAYOUT_LDI
+                calculated { "<pkgconf/mlt_" . CYGHWR_MEMORY_LAYOUT . ".ldi>" }
+        }
+
+        cdl_option CYGHWR_MEMORY_LAYOUT_H {
+                display "Memory layout header file"
+                flavor data
+                no_define
+                define -file system.h CYGHWR_MEMORY_LAYOUT_H
+                calculated { "<pkgconf/mlt_" . CYGHWR_MEMORY_LAYOUT . ".h>" }
+        }
+
+        cdl_option CYGHWR_MEMORY_SDRAM_BASE_ADDRESS {
+                display        "Select base address of the external RAM"
+                flavor          data
+                default_value   0x44000000
+        }
+
+        cdl_option CYGHWR_MEMORY_FLASH_BASE_ADDRESS_USER {
+                display        "Select base address of the external FLASH"
+                flavor          data
+                default_value   { 0x84C00000 }
+        }
+
+        cdl_option CYGHWR_MEMORY_FLASH_BASE_ADDRESS {
+                display        "Calculated flash base address"
+                flavor          data
+                calculated     { ! CYGHWR_HAL_MICROBLAZE_BRAM_STORE_VECTORS ? 0x0 : CYGHWR_MEMORY_FLASH_BASE_ADDRESS_USER }
+        }
+    }
+
+    cdl_component CYGPKG_REDBOOT_HAL_OPTIONS {
+        display       "Redboot HAL options"
+        flavor        none
+        no_define
+        parent        CYGPKG_REDBOOT
+        active_if     CYGPKG_REDBOOT
+        description   "
+            This option lists the target's requirements for a valid Redboot
+            configuration."
+
+        cdl_option CYGBLD_BUILD_REDBOOT_BIN {
+            display       "Build Redboot ROM binary images (remove .vector section)"
+            active_if     { CYGBLD_BUILD_REDBOOT && CYGHWR_HAL_MICROBLAZE_BRAM_STORE_VECTORS }
+            default_value { CYGBLD_BUILD_REDBOOT && CYGHWR_HAL_MICROBLAZE_BRAM_STORE_VECTORS }
+            no_define
+            description "This option enables the conversion of the Redboot ELF
+                         image to binary image formats suitable for ROM programming."
+
+            make -priority 325 {
+                <PREFIX>/bin/redboot.bin : <PREFIX>/bin/redboot.elf
+                $(OBJCOPY) --strip-debug $< $(@:.bin=.img)
+                $(OBJCOPY) -O srec $< $(@:.bin=.srec)
+                $(OBJCOPY) -O binary -R .vectors $< $@
+            }
+        }
+
+        cdl_option CYGBLD_BUILD_REDBOOT_BIN_NO_BRAM {
+            display       "Build Redboot ROM binary images (keep .vector section)"
+            active_if     { CYGBLD_BUILD_REDBOOT && ! CYGHWR_HAL_MICROBLAZE_BRAM_STORE_VECTORS }
+            default_value { CYGBLD_BUILD_REDBOOT && ! CYGHWR_HAL_MICROBLAZE_BRAM_STORE_VECTORS }
+            no_define
+            description "This option enables the conversion of the Redboot ELF
+                         image to binary image formats suitable for ROM programming."
+
+            make -priority 325 {
+                <PREFIX>/bin/redboot.bin : <PREFIX>/bin/redboot.elf
+                $(OBJCOPY) --strip-debug $< $(@:.bin=.img)
+                $(OBJCOPY) -O srec $< $(@:.bin=.srec)
+                $(OBJCOPY) -O binary $< $@
+            }
+        }
+    }
+
+}

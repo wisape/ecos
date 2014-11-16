@@ -1,0 +1,85 @@
+2012-12-29  Christophe Coutand  <ccoutand@stmi.com>
+	* Updated CYGHWR_HAL_POWERPC_E500_CORE and CYGHWR_HAL_POWERPC_E500
+	to match PPC architecture HAL
+	* misc/net_RAM.ecm
+	* misc/net_RAM_smp.ecm
+	* misc/net_RAM_smp_wd.ecm:
+	* misc/reboot_ROM.ecm
+	* misc/reboot_ROMRAM.ecm
+	* misc/reboot_ROMRAM_smp.ecm
+
+2011-06-01 Christophe Coutand  <ccoutand@stmi.com>
+    * Rename default ECM files to net ECM
+    * misc/default_RAM.ecm
+    * misc/default_RAM_smp.ecm
+    * misc/default_RAM_smp_wd.ecm: Removed
+    * misc/net_RAM.ecm
+    * misc/net_RAM_smp.ecm
+    * misc/net_RAM_smp_wd.ecm: Added
+
+2010-11-30 Christophe Coutand  <ccoutand@stmi.com>
+    * Replace MPC85xx with quicc3
+
+2010-10-24  Christophe Coutand  <ccoutand@stmi.com>
+
+    * Move profiler timer interrupt from hal_aux.c to plf_misc.c
+    * cdl/hal_powerpc_mpc8572ds.cdl
+    * src/hal_aux.c
+    * src/plf_misc.c
+
+2010-05-12  Christophe Coutand  <ccoutand@stmi.com>
+
+    * Updated to handle DDR in interleaved mode
+    * cdl/hal_powerpc_mpc8572ds.cdl
+    * include/plf_regs.h: 
+    * src/mpc8572ds.S: 
+
+2010-04-27  Christophe Coutand  <ccoutand@stmi.com>
+
+    * Commit New HAL
+    * src/hal_aux.c: 
+    * src/hal_diag.c: 
+    * src/mpc8572ds.S: 
+    * src/plf_redboot_linux_exec.c: 
+    * misc/default_RAM.ecm
+    * misc/default_RAM_smp.ecm
+    * misc/reboot_ROM.ecm
+    * misc/reboot_ROMRAM.ecm
+    * misc/reboot_ROMRAM_smp.ecm
+    * include/hal_diag.h: 
+    * include/plf_cache.h: 
+    * include/plf_intr.h: 
+    * include/plf_mem.h:
+    * include/plf_regs.h: 
+    * include/plf_stub.h:
+    * include/pkgconf/mlt_powerpc_mpc8572ds_ram.h: 
+    * include/pkgconf/mlt_powerpc_mpc8572ds_ram.ldi: 
+    * include/pkgconf/mlt_powerpc_mpc8572ds_rom.h: 
+    * include/pkgconf/mlt_powerpc_mpc8572ds_rom.ldi: 
+    * include/pkgconf/mlt_powerpc_mpc8572ds_romram.h: 
+    * include/pkgconf/mlt_powerpc_mpc8572ds_romram.ldi: 
+    * cdl/hal_powerpc_mpc8572ds.cdl
+
+//===========================================================================
+// ####GPLCOPYRIGHTBEGIN####                                                
+// -------------------------------------------                              
+// This file is part of eCos, the Embedded Configurable Operating System.   
+// Copyright (C) 2010, 2011 Free Software Foundation, Inc.
+//
+// This program is free software; you can redistribute it and/or modify     
+// it under the terms of the GNU General Public License as published by     
+// the Free Software Foundation; either version 2 or (at your option) any   
+// later version.                                                           
+//
+// This program is distributed in the hope that it will be useful, but      
+// WITHOUT ANY WARRANTY; without even the implied warranty of               
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU        
+// General Public License for more details.                                 
+//
+// You should have received a copy of the GNU General Public License        
+// along with this program; if not, write to the                            
+// Free Software Foundation, Inc., 51 Franklin Street,                      
+// Fifth Floor, Boston, MA  02110-1301, USA.                                
+// -------------------------------------------                              
+// ####GPLCOPYRIGHTEND####                                                  
+//===========================================================================

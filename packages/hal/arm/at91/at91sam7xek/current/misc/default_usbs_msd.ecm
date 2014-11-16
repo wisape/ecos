@@ -1,0 +1,52 @@
+cdl_savefile_version 1;
+cdl_savefile_command cdl_savefile_version {};
+cdl_savefile_command cdl_savefile_command {};
+cdl_savefile_command cdl_configuration { description hardware template package };
+cdl_savefile_command cdl_package { value_source user_value wizard_value inferred_value };
+cdl_savefile_command cdl_component { value_source user_value wizard_value inferred_value };
+cdl_savefile_command cdl_option { value_source user_value wizard_value inferred_value };
+cdl_savefile_command cdl_interface { value_source user_value wizard_value inferred_value };
+
+cdl_configuration eCos {
+    description "" ;
+    hardware    at91sam7xek ;
+    template    default ;
+    package CYGPKG_IO_DISK current ;
+    package CYGPKG_IO_USB_SLAVE_MSD current ;
+    package CYGPKG_BLOCK_LIB current ;
+    package CYGPKG_LINUX_COMPAT current ;
+    package CYGPKG_FS_FAT current ;
+    package CYGPKG_IO_FILEIO current ;
+};
+
+cdl_option CYGDAT_IO_USB_SLAVE_MSD0_TX_EP {
+    user_value  "usbs_at91_ep4"
+};
+
+cdl_option CYGNUM_IO_USB_SLAVE_MSD0_TX_EP_NUM  {
+   user_value 4
+};
+
+cdl_option CYGNUM_IO_USB_SLAVE_MSD0_TX_EP_MAX_PACKET_SIZE  {
+   user_value 256
+};
+
+cdl_option CYGSEM_IO_USB_SLAVE_MSD_STALL_ENABLE  {
+   user_value 1
+};
+
+cdl_option CYGDAT_IO_USB_SLAVE_MSD0_LUN0_NAME  {
+   user_value "\"/dev/ramdisk0/1\""
+};
+
+cdl_option CYGBLD_IO_USB_SLAVE_MSD_DEBUG  {
+   user_value 1
+};
+
+cdl_option CYGSEM_DEVS_USB_AT91_ZERO_LENGHT_PACKET_TERMINATION  {
+   user_value 0
+};
+   
+cdl_option CYGHWR_HAL_ARM_AT91SAM7   {
+   inferred_value at91sam7x256
+};

@@ -1,0 +1,446 @@
+##==========================================================================
+##
+##      hal_mb_generic.cdl
+##
+##      Microblaze generic variant HAL configuration data
+##
+##==========================================================================
+## ####ECOSGPLCOPYRIGHTBEGIN####                                            
+## -------------------------------------------                              
+## This file is part of eCos, the Embedded Configurable Operating System.   
+## Copyright (C) 2011 Free Software Foundation, Inc.                        
+##
+## eCos is free software; you can redistribute it and/or modify it under    
+## the terms of the GNU General Public License as published by the Free     
+## Software Foundation; either version 2 or (at your option) any later      
+## version.                                                                 
+##
+## eCos is distributed in the hope that it will be useful, but WITHOUT      
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    
+## FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License    
+## for more details.                                                        
+##
+## You should have received a copy of the GNU General Public License        
+## along with eCos; if not, write to the Free Software Foundation, Inc.,    
+## 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.            
+##
+## As a special exception, if other files instantiate templates or use      
+## macros or inline functions from this file, or you compile this file      
+## and link it with other works to produce a work based on this file,       
+## this file does not by itself cause the resulting work to be covered by   
+## the GNU General Public License. However the source code for this file    
+## must still be made available in accordance with section (3) of the GNU   
+## General Public License v2.                                               
+##
+## This exception does not invalidate any other reasons why a work based    
+## on this file might be covered by the GNU General Public License.         
+## -------------------------------------------                              
+## ####ECOSGPLCOPYRIGHTEND####                                              
+##==========================================================================
+#######DESCRIPTIONBEGIN####
+##
+## Author(s):    ccoutand
+## Date:         2011-02-01
+##
+######DESCRIPTIONEND####
+##
+##==========================================================================
+
+cdl_package CYGPKG_HAL_MICROBLAZE_GENERIC {
+    display      "Microblaze Generic Variant"
+    parent        CYGPKG_HAL_MICROBLAZE
+    define_header hal_mb_generic.h
+    include_dir   cyg/hal
+    hardware
+    description   "
+        The Microblaze generic HAL variant package provides the support 
+        needed to run eCos on generic implementation of the Microblaze 
+        core build around Xilinx IP peripheral blocks."
+
+    compile       mb_generic_misc.c hal_diag.c
+
+    implements    CYGINT_HAL_DEBUG_GDB_STUBS
+    implements    CYGINT_HAL_DEBUG_GDB_STUBS_BREAK
+    implements    CYGINT_HAL_VIRTUAL_VECTOR_SUPPORT
+    implements    CYGINT_HAL_VIRTUAL_VECTOR_COMM_BAUD_SUPPORT
+    implements    CYGINT_HAL_MICROBLAZE_VARIANT
+
+    define_proc {
+        puts $::cdl_system_header "#define CYGBLD_HAL_TARGET_H   <pkgconf/hal_mb.h>"
+        puts $::cdl_system_header "#define CYGBLD_HAL_VARIANT_H  <pkgconf/hal_mb_generic.h>"
+        puts $::cdl_header "#define HAL_PLATFORM_CPU    \"Microblaze SoftCore\""
+    }
+
+    cdl_option CYGHWR_HAL_MICROBLAZE_DISABLE_MMU {
+        display      "Disable Memory Management Unit (MMU)"
+        calculated    1
+        description "
+            MMU not implemented yet."
+    }
+
+    cdl_component CYGPKG_HAL_MICROBLAZE_RTC {
+        display         "Real Time Clock"
+        flavor           none
+        implements       CYGINT_HAL_MICROBLAZE_RTC
+        description     "Real time clock configuration."
+
+        cdl_option CYGPKG_HAL_MICROBLAZE_RTC_BLOCK {
+            display          "RTC peripheral source"
+            flavor           data
+            legal_values     { "XPS_TIMER" }
+            default_value    { "XPS_TIMER" }
+            description      "
+                Select the Real Time Clock source. Currently, only support for the
+                XPS timer is available."
+        }
+
+        cdl_option CYGNUM_HAL_MICROBLAZE_RTC_BLOCK_ID {
+            display          "RTC block peripheral identifier"
+            flavor            data
+            default_value     0
+            description       "
+                Select the peripheral ID. This is required for peripherals
+                that include multiple core of the same feature. For instance,
+                the XPS timer includes 2 timers. To use the first timer
+                as RTC clock, set the block id to 0. When not applicable,
+                leave the option blank. When using XPS timer, since
+                the interrupt vector is common for both timer 1 and 2, it is not
+                possible to use the second timer for anything else because the
+                interrupt decoding does not support such scenario where it is
+                required a second level of decoding."
+        }
+
+        cdl_option CYGNUM_HAL_MICROBLAZE_RTC_IRQNUM {
+            display          "RTC interrupt number"
+            flavor           data
+            default_value    2
+            legal_values     { 0 to CYGNUM_HAL_MICROBLAZE_IPC_MAXIRQ }
+            description      "
+                Define the RTC interrupt number."
+        }
+
+        cdl_option CYGPKG_HAL_MICROBLAZE_RTC_BLOCK_FREQ {
+            display        "RTC timer clock"
+            flavor          data
+            default_value   { CYGNUM_HAL_MICROBLAZE_SYSCLOCK_FREQ }
+            description      "
+                Define the RTC source clock frequency in Hz. The default value
+                is the Microblaze Processor Local Bus frequency."
+        }
+
+        cdl_option CYGPKG_HAL_MICROBLAZE_RTC_BLOCK_BASE {
+            display          "RTC peripheral base address "
+            flavor           data
+            default_value    0x83C00000
+            description      "
+                Define the RTC peripheral base address."
+        }
+
+        cdl_component CYGNUM_HAL_RTC_CONSTANTS {
+            display       "Real-time clock constants"
+            flavor        none
+            no_define
+            cdl_option CYGNUM_HAL_RTC_NUMERATOR {
+                display       "Real-time clock numerator"
+                flavor        data
+                default_value 1000000000
+            }
+            cdl_option CYGNUM_HAL_RTC_DENOMINATOR {
+                display       "Real-time clock denominator"
+                flavor        data
+                default_value 100
+            }
+            cdl_option CYGNUM_HAL_RTC_PERIOD {
+                display       "Real-time clock period"
+                flavor        data
+                default_value 1000000 / CYGNUM_HAL_RTC_DENOMINATOR
+                description   "
+                    The period defined here is something of a fake, it is expressed
+                    in terms of a notional 1MHz clock. The value actually installed
+                    in the hardware is calculated from the current settings of the
+                    Clock generation hardware."
+            }
+        }
+    }
+
+    cdl_component CYGPKG_HAL_MICROBLAZE_PROFILING_TIMER {
+        display         "Profiling timer"
+        flavor           bool
+        active_if        CYGPKG_PROFILE_GPROF
+
+        description     "Profiling timer hardware configuration."
+        implements       CYGINT_PROFILE_HAL_TIMER
+
+        cdl_option CYGPKG_HAL_MICROBLAZE_PROFILING_TIMER_BLOCK {
+            display          "Profiling timer peripheral"
+            flavor           data
+            legal_values     { "XPS_FIT" "XPS_TIMER"}
+            default_value    { "XPS_TIMER" }
+            description      "
+                Select the profiling timer source. Currently only support for the
+                XPS Fix Interval Timer is available."
+        }
+
+        cdl_option CYGPKG_HAL_MICROBLAZE_PROFILING_TIMER_BASE {
+            display          "Profiling timer peripheral base address "
+            flavor            data
+            default_value     0x87c00000
+            description      "
+                Define the Profiling timer peripheral base address, leave null
+                if not used."
+        }
+
+        cdl_option CYGPKG_HAL_MICROBLAZE_PROFILING_TIMER_FREQ {
+            display        "Profiling timer clock"
+            flavor          data
+            default_value   { CYGNUM_HAL_MICROBLAZE_SYSCLOCK_FREQ }
+            description      "
+                Define the Profiling timer source clock frequency in Hz. The default value
+                is the Microblaze Processor Local Bus frequency."
+        }
+
+        cdl_option CYGNUM_HAL_MICROBLAZE_PROFILING_TIMER_IRQNUM {
+            display          "Profiling timer interrupt number"
+            flavor           data
+            default_value    4
+            legal_values     { 0 to CYGNUM_HAL_MICROBLAZE_IPC_MAXIRQ }
+            description      "
+                Define the Profiling timer interrupt number."
+        }
+
+        cdl_option CYGNUM_HAL_MICROBLAZE_PROFILING_TIMER_BLOCK_ID {
+            display          "Profiling timer peripheral identifier"
+            flavor            data
+            default_value     0
+            description       "
+                Select the peripheral ID. This is required for peripherals
+                that include multiple core of the same feature. For instance,
+                the XPS timer includes 2 timers. To use the first timer
+                as profiling timer, set the block id to 0. When not applicable,
+                leave the option blank. When using XPS timer, since
+                the interrupt vector is common for both timer 1 and 2, it is not
+                possible to use the second timer for anything else because the
+                interrupt decoding does not support such scenario where it is
+                required a second level of decoding."
+        }
+    }
+
+    cdl_component CYGPKG_HAL_MICROBLAZE_UART {
+        display         "UART configuration"
+        flavor           none
+        description     "Configure the UARTs for the debug and diagnostic channel."
+
+        cdl_option CYGPKG_HAL_MICROBLAZE_UART_BLOCK {
+            display          "UART peripheral"
+            flavor           data
+            legal_values     { "XPS_UARTLITE" "XPS_UART16550"}
+            default_value    { "XPS_UARTLITE" }
+            description      "
+                Select the UARTs source. Both UARTLite and UART16550 is
+                available."
+        }
+
+        cdl_component CYGPKG_HAL_MICROBLAZE_UART_CLK {
+            display          "UART peripheral clock configuration"
+            flavor           bool
+            default_value    { CYGPKG_HAL_MICROBLAZE_UART_BLOCK == "XPS_UART16550" }
+            active_if        { CYGPKG_HAL_MICROBLAZE_UART_BLOCK == "XPS_UART16550" }
+            description      "
+                Configure the clock of the UART peripherals. Only valid for 16550 based
+                UART."
+
+            cdl_option CYGNUM_HAL_MICROBLAZE_UART_CLKFREQ {
+                display          "UART clock frequency"
+                flavor            data
+                default_value    { CYGNUM_HAL_MICROBLAZE_SYSCLOCK_FREQ }
+                description      "
+                    Define the UART peripherals clock frequency. The default value
+                    is the Microblaze Processor Local Bus frequency."
+            }
+        }
+
+        cdl_component CYGPKG_HAL_MICROBLAZE_UART0 {
+            display         "UART0 configuration"
+            flavor           bool
+            default_value    1
+            description     "Configure the UART0 if available."
+
+            cdl_option CYGPKG_HAL_MICROBLAZE_UART0_BASE {
+                display          "UART0 base address"
+                flavor           data
+                default_value    0x84000000
+                description      "
+                    Define the UART0 peripheral base address."
+            }
+
+            cdl_option CYGNUM_HAL_MICROBLAZE_UART0_IRQNUM {
+                display          "UART0 interrupt number"
+                flavor           data
+                default_value    1
+                legal_values     { 0 to CYGNUM_HAL_MICROBLAZE_IPC_MAXIRQ }
+                description      "
+                    Define the UART0 interrupt number."
+            }
+        }
+
+        cdl_component CYGPKG_HAL_MICROBLAZE_UART1 {
+            display         "UART1 configuration"
+            flavor           bool
+            default_value    0
+            description     "Configure the UART1 if available."
+
+            cdl_option CYGPKG_HAL_MICROBLAZE_UART1_BASE {
+                display          "UART1 base address"
+                flavor           data
+                default_value    0x85000000
+                description      "
+                    Define the UART1 peripheral base address."
+            }
+
+            cdl_option CYGNUM_HAL_MICROBLAZE_UART1_IRQNUM {
+                display          "UART1 interrupt number"
+                flavor           data
+                default_value    2
+                legal_values     { 0 to CYGNUM_HAL_MICROBLAZE_IPC_MAXIRQ }
+                description      "
+                    Define the UART1 interrupt number."
+            }
+        }
+    }
+
+    cdl_option CYGNUM_HAL_MICROBLAZE_IPC_MAXIRQ {
+        display          "Interrupt maximum vector number"
+        flavor            data
+        calculated       { CYGPKG_HAL_MICROBLAZE_IPC ? CYGNUM_HAL_MICROBLAZE_IPC_BLOCK_MAXIRQ : 0 }
+            description       "
+                Calculated the maximum interrupt number. When not using an Interrupt
+                Controller, only interrupt 0 is allowed."
+    }
+
+    cdl_component CYGPKG_HAL_MICROBLAZE_IPC {
+        display         "Interrupt Controller"
+        flavor           bool
+        default_value    1
+        description      "
+                Configure the interrupt controller. When disable, the Microblaze 
+                processor only supports a single external interrupt source which 
+                should then be reserved for the RTC clock."
+
+        cdl_option CYGPKG_HAL_MICROBLAZE_IPC_BLOCK {
+            display          "IPC peripheral source"
+            flavor           data
+            legal_values     { "XPS_INTC" }
+            default_value    { "XPS_INTC" }
+            description      "
+                Select the interrupt controller. Currently only support for the
+                XPS controller is available."
+        }
+
+        cdl_option CYGPKG_HAL_MICROBLAZE_IPC_BLOCK_BASE {
+            display          "IPC peripheral base address "
+            flavor           data
+            default_value    0x81800000
+            description      "
+                Define the interrupt controller peripheral base address."
+        }
+
+        cdl_option CYGNUM_HAL_MICROBLAZE_IPC_BLOCK_MAXIRQ {
+            display          "IPC peripheral, maximum IRQ number "
+            flavor            data
+            default_value     16
+            description       "
+                Define the interrupt controller maximum interrupt number.
+                Interrupt map to number 0 has the lowest priority."
+        }
+    }
+
+    cdl_option CYGNUM_HAL_VIRTUAL_VECTOR_COMM_CHANNELS {
+        display      "Number of communication channels on the board"
+        flavor       data
+        calculated   { (CYGPKG_HAL_MICROBLAZE_UART0 && CYGPKG_HAL_MICROBLAZE_UART1) ? 2 : CYGPKG_HAL_MICROBLAZE_UART0 ? 1 : CYGPKG_HAL_MICROBLAZE_UART1 ? 1 : 0 }
+    }
+
+    cdl_option CYGNUM_HAL_VIRTUAL_VECTOR_DEBUG_CHANNEL {
+        display          "Debug serial port"
+        active_if        CYGPRI_HAL_VIRTUAL_VECTOR_DEBUG_CHANNEL_CONFIGURABLE
+        flavor data
+        legal_values     0 to CYGNUM_HAL_VIRTUAL_VECTOR_COMM_CHANNELS-1
+        default_value    0
+        description      "
+            The Microblaze board has two serial ports. This option
+            chooses which port will be used to connect to a host
+            running GDB."
+     }
+
+     cdl_option CYGNUM_HAL_VIRTUAL_VECTOR_CONSOLE_CHANNEL {
+         display          "Diagnostic serial port"
+         active_if        CYGPRI_HAL_VIRTUAL_VECTOR_CONSOLE_CHANNEL_CONFIGURABLE
+         flavor data
+         legal_values     0 to CYGNUM_HAL_VIRTUAL_VECTOR_COMM_CHANNELS-1
+         default_value    0
+         description      "
+            The Microblaze has two serial ports. This option
+            chooses which port will be used for diagnostic output."
+     }
+
+    cdl_option CYGNUM_HAL_VIRTUAL_VECTOR_CONSOLE_CHANNEL_BAUD {
+        display       "Console serial port baud rate"
+        flavor        data
+        legal_values  9600 19200 38400 57600 115200
+        default_value 38400
+        description   "
+            This option controls the default baud rate used for the
+            console connection.
+            Note: this should match the value chosen for the GDB port if the
+            diagnostic and GDB port are the same."
+    }
+
+    cdl_option CYGNUM_HAL_VIRTUAL_VECTOR_DEBUG_CHANNEL_BAUD {
+        display       "GDB serial port baud rate"
+        flavor        data
+        legal_values  9600 19200 38400 57600 115200
+        default_value 38400
+        description   "
+            This option controls the default baud rate used for the
+            GDB connection.
+            Note: this should match the value chosen for the console port if the
+            console and GDB port are the same."
+    }
+
+    cdl_option CYGSEM_HAL_ROM_MONITOR {
+        display       "Behave as a ROM monitor"
+        flavor        bool
+        default_value 1
+        parent        CYGPKG_HAL_ROM_MONITOR
+        requires      { CYG_HAL_STARTUP == "ROM" || CYG_HAL_STARTUP == "QEMU" || CYG_HAL_STARTUP == "ROMRAM" }
+        requires      { CYGDBG_HAL_CRCTABLE_LOCATION == "ROM" }
+        description   "
+            Enable this option if this program is to be used as a ROM monitor,
+            i.e. applications will be loaded into RAM on the board, and this
+            ROM monitor may process exceptions or interrupts generated from the
+            application. This enables features such as utilizing a separate
+            interrupt stack when exceptions are generated."
+    }
+
+    cdl_option CYGSEM_HAL_USE_ROM_MONITOR {
+         display       "Work with a ROM monitor"
+         flavor        booldata
+         legal_values  { "Generic" "GDB_stubs" }
+         default_value { CYG_HAL_STARTUP == "RAM" ? "GDB_stubs" : 0 }
+         parent        CYGPKG_HAL_ROM_MONITOR
+         requires      { CYG_HAL_STARTUP == "RAM" }
+         description   "
+             Support can be enabled for different varieties of ROM monitor.
+             This support changes various eCos semantics such as the encoding
+             of diagnostic output, or the overriding of hardware interrupt
+             vectors.
+             Firstly there is \"Generic\" support which prevents the HAL
+             from overriding the hardware vectors that it does not use, to
+             instead allow an installed ROM monitor to handle them. This is
+             the most basic support which is likely to be common to most
+             implementations of ROM monitor.
+             \"GDB_stubs\" provides support when GDB stubs are included in
+             the ROM monitor or boot ROM."
+    }
+
+}

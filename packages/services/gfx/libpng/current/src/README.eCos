@@ -1,0 +1,9 @@
+This is porting of the libpng version 1.6.11rc01 to eCos
+
+Only the needed files are kept, other files/directories are removed for
+better clarity.
+
+All changes related to eCos are under #ifdef __ECOS__
+
+TODO: 
+   #1 Add more CDL option for configuring the library

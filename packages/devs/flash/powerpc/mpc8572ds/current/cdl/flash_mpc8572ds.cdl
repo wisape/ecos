@@ -1,0 +1,30 @@
+# ====================================================================
+#
+#      flash_mpc8572ds.cdl
+#
+#      FLASH memory - Hardware support on Freescale MPC8572DS flash
+# ====================================================================
+cdl_package CYGPKG_DEVS_FLASH_MPC8572DS {
+    display       "Freescale MPC8572DS (PowerPC 8572) FLASH memory support"
+
+    parent        CYGPKG_IO_FLASH
+    active_if     CYGPKG_IO_FLASH
+    requires      CYGPKG_HAL_POWERPC_MPC8572DS
+
+    implements    CYGINT_DEVS_FLASH_INTEL_VARIANTS
+
+    include_dir   cyg/io
+    compile       mpc8572ds_flash.c
+
+    # Arguably this should do in the generic package
+    # but then there is a logic loop so you can never enable it.
+    cdl_interface CYGINT_DEVS_FLASH_AMD_AM29XXXXX_REQUIRED {
+        display   "Generic AMD flash driver required"
+    }
+
+    implements    CYGINT_DEVS_FLASH_AMD_AM29XXXXX_REQUIRED
+    requires      CYGHWR_DEVS_FLASH_AMD_S29GL01GP
+
+}
+
+# EOF flash_mpc8572ds.cdl
