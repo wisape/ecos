@@ -71,6 +71,10 @@
 	packages for TWR-K60N512 and TWR-K40X256 including Freescale serial
 	and ethernet drivers.
 
+2011-06-21  Martin Rösch <roscmar@gmail.com>
+
+	* ecos.db: Add STM32 I2C driver package.
+
 2011-05-25  Christophe Coutand  <ecos@hotmail.co.uk>
 
 	* NEWS, ecos.db: Add SPI flash driver for SST25xx devices.

@@ -2676,6 +2676,16 @@ package CYGPKG_DEVS_I2C_CORTEXM_A2FXXX {
                  controller family."
 }
 
+package CYGPKG_DEVS_I2C_CORTEXM_STM32 {
+    alias           { "STM32 I2C driver" i2c_stm32 }
+    hardware
+    directory       devs/i2c/cortexm/stm32
+    script          i2c_stm32.cdl
+    description "
+        This package provides a generic I2C device driver for the on-chip
+        I2C peripherals in STM32 processors."
+}
+
 package CYGPKG_DEVS_I2C_FREESCALE_I2C {
     alias        { "Freescale I2C driver" freescale_i2c i2c_freescale kinetis_i2c i2c_kinetis}
     hardware
@@ -7435,6 +7445,8 @@ target stm3210e_eval {
                    CYGPKG_DEVS_WALLCLOCK_STM32
                    CYGPKG_IO_SPI
                    CYGPKG_DEVS_SPI_CORTEXM_STM32
+                   CYGPKG_IO_I2C
+                   CYGPKG_DEVS_I2C_CORTEXM_STM32
                    CYGPKG_DEVS_ADC_CORTEXM_STM32
                    CYGPKG_IO_USB
                    CYGPKG_IO_USB_SLAVE

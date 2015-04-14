@@ -1376,6 +1376,7 @@ __externC void hal_stm32_clock_disable( cyg_uint32 desc );
 #define CYGHWR_HAL_STM32_I2C_CCR                0x1C
 #define CYGHWR_HAL_STM32_I2C_TRISE              0x20
 
+// CR1 Fields
 #define CYGHWR_HAL_STM32_I2C_CR1_PE             BIT_(0)
 #define CYGHWR_HAL_STM32_I2C_CR1_SMBUS          BIT_(1)
 #define CYGHWR_HAL_STM32_I2C_CR1_SMBTYPE        BIT_(3)
@@ -1391,7 +1392,7 @@ __externC void hal_stm32_clock_disable( cyg_uint32 desc );
 #define CYGHWR_HAL_STM32_I2C_CR1_ALERT          BIT_(13)
 #define CYGHWR_HAL_STM32_I2C_CR1_SWRST          BIT_(15)
 
-
+// CR2 Fields
 #define CYGHWR_HAL_STM32_I2C_CR2_FREQ(__x)      VALUE_(0,__x)
 #define CYGHWR_HAL_STM32_I2C_CR2_FREQ_MASK      MASK_(0,6)
 #define CYGHWR_HAL_STM32_I2C_CR2_ITERREN        BIT_(8)
@@ -1400,8 +1401,18 @@ __externC void hal_stm32_clock_disable( cyg_uint32 desc );
 #define CYGHWR_HAL_STM32_I2C_CR2_DMAEN          BIT_(11)
 #define CYGHWR_HAL_STM32_I2C_CR2_LAST           BIT_(12)
 
-// OAR1 and OAR2 omitted, we only support master mode
+// OAR1 fields
+#define CYGHWR_HAL_STM32_I2C_OAR1_ADD(__x)      VALUE_(0,__x)
+#define CYGHWR_HAL_STM32_I2C_OAR1_ADDMODE       BIT_(15)
 
+// OAR2 fields
+#define CYGHWR_HAL_STM32_I2C_OAR2_ENDUAL        BIT_(0)
+#define CYGHWR_HAL_STM32_I2C_OAR2_ADD2(__x)     VALUE_(1,__x)
+
+// DR fields
+#define CYGHWR_HAL_STM32_I2C_DR_MASK            MASK_(0,7)
+
+// SR1 Fields
 #define CYGHWR_HAL_STM32_I2C_SR1_SB             BIT_(0)
 #define CYGHWR_HAL_STM32_I2C_SR1_ADDR           BIT_(1)
 #define CYGHWR_HAL_STM32_I2C_SR1_BTF            BIT_(2)
@@ -1417,7 +1428,7 @@ __externC void hal_stm32_clock_disable( cyg_uint32 desc );
 #define CYGHWR_HAL_STM32_I2C_SR1_TIMEOUT        BIT_(14)
 #define CYGHWR_HAL_STM32_I2C_SR1_SMBALERT       BIT_(15)
 
-
+// SR2 Fields
 #define CYGHWR_HAL_STM32_I2C_SR2_MSL            BIT_(0)
 #define CYGHWR_HAL_STM32_I2C_SR2_BUSY           BIT_(1)
 #define CYGHWR_HAL_STM32_I2C_SR2_TRA            BIT_(2)
@@ -1425,7 +1436,12 @@ __externC void hal_stm32_clock_disable( cyg_uint32 desc );
 #define CYGHWR_HAL_STM32_I2C_SR2_SMBDEFAULT     BIT_(5)
 #define CYGHWR_HAL_STM32_I2C_SR2_SMBHOST        BIT_(6)
 #define CYGHWR_HAL_STM32_I2C_SR2_DUALF          BIT_(7)
-#define CYGHWR_HAL_STM32_I2C_SR2_PEC            MASK_(7,8)
+#define CYGHWR_HAL_STM32_I2C_SR2_PEC            MASK_(8,7)
+
+// CCR Fields
+#define CYGHWR_HAL_STM32_I2C_CCR_MASK           MASK_(0,11)
+#define CYGHWR_HAL_STM32_I2C_CCR_DUTY           BIT_(14)
+#define CYGHWR_HAL_STM32_I2C_CCR_F_S            BIT_(15)
 
 #define CYGHWR_HAL_STM32_I2C_CCR_CCR(__x)       VALUE_(0,__x)
 #define CYGHWR_HAL_STM32_I2C_CCR_CCR_MASK       MASK_(0,12)
@@ -1434,8 +1450,9 @@ __externC void hal_stm32_clock_disable( cyg_uint32 desc );
 #define CYGHWR_HAL_STM32_I2C_CCR_STD            0
 #define CYGHWR_HAL_STM32_I2C_CCR_FAST           BIT_(15)
 
+// TRISE Fields
 #define CYGHWR_HAL_STM32_I2C_TRISE_VAL(__x)     VALUE_(0,__x)
-#define CYGHWR_HAL_STM32_I2C_TRISE_MASK         MASK_(0,6)
+#define CYGHWR_HAL_STM32_I2C_TRISE_MASK         MASK_(0,5)
 
 // Clock control definitions for each I2C bus
 
