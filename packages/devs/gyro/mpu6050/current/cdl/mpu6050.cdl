@@ -1,0 +1,76 @@
+# ====================================================================
+#
+#      mpu6050.cdl
+#
+#      eCos Gyro mpu6050 configuration data
+#
+# ====================================================================
+## ####ECOSGPLCOPYRIGHTBEGIN####                                            
+## -------------------------------------------                              
+## This file is part of eCos, the Embedded Configurable Operating System.   
+## Copyright (C) 2008 Free Software Foundation, Inc.                        
+##
+## eCos is free software; you can redistribute it and/or modify it under    
+## the terms of the GNU General Public License as published by the Free     
+## Software Foundation; either version 2 or (at your option) any later      
+## version.                                                                 
+##
+## eCos is distributed in the hope that it will be useful, but WITHOUT      
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or    
+## FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License    
+## for more details.                                                        
+##
+## You should have received a copy of the GNU General Public License        
+## along with eCos; if not, write to the Free Software Foundation, Inc.,    
+## 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.            
+##
+## As a special exception, if other files instantiate templates or use      
+## macros or inline functions from this file, or you compile this file      
+## and link it with other works to produce a work based on this file,       
+## this file does not by itself cause the resulting work to be covered by   
+## the GNU General Public License. However the source code for this file    
+## must still be made available in accordance with section (3) of the GNU   
+## General Public License v2.                                               
+##
+## This exception does not invalidate any other reasons why a work based    
+## on this file might be covered by the GNU General Public License.         
+## -------------------------------------------                              
+## ####ECOSGPLCOPYRIGHTEND####                                              
+# ====================================================================
+######DESCRIPTIONBEGIN####
+#
+# Author(s):      wisape
+# Contributors:   
+# Date:           2015-03-28
+#
+#####DESCRIPTIONEND####
+#
+# ====================================================================
+
+
+cdl_package CYGPKG_DEVS_GYRO_I2C_MPU6050 {
+    display     "MPU6050 hardware interface"
+    
+    requires    CYGPKG_IO_I2C
+    
+    description " 
+           This package provides gyro mpu6050 interface."
+           
+    include_dir cyg/io
+    
+    compile  -library=libextras.a mpu6050.c dmpctl.c  inv_mpu.c  inv_mpu_dmp_motion_driver.c
+
+    define_proc {
+      puts $::cdl_system_header "#define CYGDAT_DEVS_MPU6050_INL <cyg/io/mpu6050.inl>"
+    }
+    
+    cdl_option CYGDAT_DEVS_GYRO_MPU6050_NAME {
+        display "Device name for gyro mpu6050"
+
+        flavor data
+
+        default_value {"\"/dev/mpu6050\""}
+
+        description "The package specifies the name of gyro mpu6050."
+    }
+}

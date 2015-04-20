@@ -7707,6 +7707,38 @@ target mini_stm32 {
         to run eCos on the MINI STM32 board."
 }
 
+package CYGPKG_DEVS_GYRO_I2C_MPU6050 {
+    alias       {"MPU6050 driver for gyroscope mpu6050"}
+    directory   devs/gyro/mpu6050
+    script      mpu6050.cdl
+    hardware
+    description "The package provides the gyro mpu6050 driver"
+}
+
+target wisape_stm32 {
+        alias { "WISAPE STM32 board" mini_stm32 }
+        packages { CYGPKG_HAL_CORTEXM
+                   CYGPKG_HAL_CORTEXM_STM32
+                   CYGPKG_HAL_CORTEXM_STM32_MINI_STM32
+                   CYGPKG_IO_SERIAL_CORTEXM_STM32
+                   CYGPKG_DEVS_FLASH_STM32
+                   CYGPKG_DEVS_WALLCLOCK_STM32
+                   CYGPKG_IO_SPI
+                   CYGPKG_DEVS_SPI_CORTEXM_STM32
+                   CYGPKG_DEVS_ADC_CORTEXM_STM32
+                   CYGPKG_IO_USB
+                   CYGPKG_IO_USB_SLAVE
+                   CYGPKG_DEVS_USB_CORTEXM_STM32
+                   CYGPKG_DEVS_FLASH_CORTEXM_MINI_STM32
+                   CYGPKG_DEVS_FLASH_SPI_SST25XX
+                   CYGPKG_IO_I2C
+		   CYGPKG_DEVS_I2C_CORTEXM_STM32
+		   CYGPKG_DEVS_GYRO_I2C_MPU6050
+                 }
+        description "The wisape_stm32_eval target provides the packages needed
+        to run eCos on the MINI STM32 board."
+}
+
 target stm32_r6 {
         alias { "STM32 R6 custom board" stm32_r6 }
         packages { CYGPKG_HAL_CORTEXM
