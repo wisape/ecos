@@ -7349,6 +7349,16 @@ package CYGPKG_HAL_CORTEXM_STM32_MINI_STM32 {
         eCos on the MINI STM32 board."
 }
 
+package CYGPKG_HAL_CORTEXM_STM32_WISAPE_STM32 {
+    alias       { "WISAPE STM32 HAL" hal_cortexm_mini_stm32 }
+    directory   hal/cortexm/stm32/wisape_stm32
+    script      hal_cortexm_stm32_wisape_stm32.cdl
+    hardware
+        description "
+        The WISAPE STM32 HAL package provides the support needed to run
+        eCos on the WISAPE STM32 board."
+}
+
 package CYGPKG_HAL_CORTEXM_STM32_STM32F4DISCOVERY {
         alias		{ "STMicroelectronics STM32F4-Discovery HAL" hal_cortexm_stm32f4discovery }
         directory	hal/cortexm/stm32/stm32f4discovery
@@ -7719,7 +7729,7 @@ target wisape_stm32 {
         alias { "WISAPE STM32 board" mini_stm32 }
         packages { CYGPKG_HAL_CORTEXM
                    CYGPKG_HAL_CORTEXM_STM32
-                   CYGPKG_HAL_CORTEXM_STM32_MINI_STM32
+                   CYGPKG_HAL_CORTEXM_STM32_WISAPE_STM32
                    CYGPKG_IO_SERIAL_CORTEXM_STM32
                    CYGPKG_DEVS_FLASH_STM32
                    CYGPKG_DEVS_WALLCLOCK_STM32
