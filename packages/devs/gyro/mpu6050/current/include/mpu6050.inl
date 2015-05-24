@@ -50,15 +50,18 @@
 //==========================================================================
 #ifndef CYG_MPU6050_INL
 #define CYG_MPU6050_INL
-#include <cyg/io/i2c_stm32.h>
+//#include <cyg/io/i2c_stm32.h>
+#include <cyg/io/i2c_stm32_gpio.h>
 
-CYG_I2C_DEVICE(
+/*CYG_I2C_DEVICE(
 	i2c_mpu6050,
 	&i2c_bus1,
 	0x68,
 	0x00,
 	CYG_I2C_DEFAULT_DELAY
-);
+);*/
+
+CYG_I2C_STM32_DEVICE(i2c_mpu6050, 0x68);
 
 
 DEVIO_TABLE(mpu6050_handles,

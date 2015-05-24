@@ -80,7 +80,6 @@ int mpu6050_i2c_read(cyg_uint8 dev_addr, cyg_uint8 addr,
     cyg_uint8 input[size];
     buffer[0] = addr;
 
-    diag_printf("xxxxxxxxxxxxxxread size= %d\n", size);
     cyg_i2c_transaction_begin(&i2c_mpu6050);
     if(!cyg_i2c_transaction_tx(&i2c_mpu6050, true, &buffer[0], 1, false)) {
         ret = -1;
@@ -146,5 +145,4 @@ static bool mpu6050_init(struct cyg_devtab_entry *tab)
 	diag_printf("!!!!!init mpu6050 end\n");
 	return true;
 
-//	return false;
 }
