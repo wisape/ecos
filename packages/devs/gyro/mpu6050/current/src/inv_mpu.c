@@ -67,8 +67,8 @@
 //}	  
 //#define log_i(...)     do {} while (0)
 //#define log_e(...)     do {} while (0)
-#define log_e    printf
-#define log_i    printf
+#define log_e    diag_printf
+#define log_i    diag_printf
 /* labs is already defined by TI's toolchain. */
 /* fabs is for doubles. fabsf is for floats. */
 #define fabs        fabsf

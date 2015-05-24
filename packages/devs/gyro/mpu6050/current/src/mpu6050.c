@@ -52,44 +52,46 @@
 #include <cyg/io/dmpctl.h>
 #include <cyg/io/mpu6050.h>
 
-#include <cyg/io/mpu6050.inl>
 #include CYGDAT_DEVS_MPU6050_INL
 
-int mpu6050_i2c_write(cyg_uint8 dev_addr, cyg_uint16 addr,
-			cyg_uint8 *pdata, cyg_uint8  size)
+int mpu6050_i2c_write(cyg_uint8 dev_addr, cyg_uint8 addr,
+			cyg_uint8  size, cyg_uint8 *pdata)
 {
     cyg_uint32 result;
+    int ret = 0;
+
+    cyg_uint8 buffer[size + 1];
+    buffer[0] = addr;
+    memcpy(buffer + 1, pdata, size);
 
     cyg_i2c_transaction_begin(&i2c_mpu6050);
-    addr = CYG_CPU_TO_BE16(addr);
-    result = cyg_i2c_transaction_tx(&i2c_mpu6050,
-                                    true, (cyg_uint8*)&addr, 2, false);
-    if (result)
-    {
-        result = cyg_i2c_transaction_tx(&i2c_mpu6050,
-                                        false, pdata, size, true);
+    if(!cyg_i2c_transaction_tx(&i2c_mpu6050, true, &buffer[0], size + 1, true)) {
+	ret = -1;
     }
     cyg_i2c_transaction_end(&i2c_mpu6050);
 
-    return result;
+    return ret;
 }
-int mpu6050_i2c_read(cyg_uint8 dev_addr, cyg_uint16 addr,
-			cyg_uint8 *pdata, cyg_uint8  size)
+int mpu6050_i2c_read(cyg_uint8 dev_addr, cyg_uint8 addr,
+			cyg_uint8  size, cyg_uint8 *pdata)
 {
-    cyg_uint32 result;
+    int ret = 0;
+    cyg_uint8 buffer[1];
+    cyg_uint8 input[size];
+    buffer[0] = addr;
 
+    diag_printf("xxxxxxxxxxxxxxread size= %d\n", size);
     cyg_i2c_transaction_begin(&i2c_mpu6050);
-    addr = CYG_CPU_TO_BE16(addr);
-    result = cyg_i2c_transaction_tx(&i2c_mpu6050,
-                                    true, (cyg_uint8*)&addr, 2, false);
-    if (result)
-    {
-        result = cyg_i2c_transaction_rx(&i2c_mpu6050,
-                                        true, pdata, size, true, true);
+    if(!cyg_i2c_transaction_tx(&i2c_mpu6050, true, &buffer[0], 1, false)) {
+        ret = -1;
+    } else if(!cyg_i2c_transaction_rx(&i2c_mpu6050, true, &input[0], size, true, true)) {
+	ret = -1;
     }
     cyg_i2c_transaction_end(&i2c_mpu6050);
 
-    return result;
+    memcpy(pdata, input, size);
+
+    return 0;
 }
 
 static Cyg_ErrNo mpu6050_write(cyg_io_handle_t handle,
@@ -137,9 +139,12 @@ static Cyg_ErrNo mpu6050_lookup(struct cyg_devtab_entry **tab,
 
 static bool mpu6050_init(struct cyg_devtab_entry *tab)
 {
-	printf("!!!!!init mpu6050\n");
+	diag_printf("!!!!!init mpu6050\n");
 	if (mpu6050_dmp_init())
 		return false;
 
+	diag_printf("!!!!!init mpu6050 end\n");
 	return true;
+
+//	return false;
 }

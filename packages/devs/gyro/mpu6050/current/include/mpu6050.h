@@ -57,10 +57,10 @@
 #include <cyg/io/i2c.h>
 
 
-int mpu6050_i2c_write(cyg_uint8 dev_addr, cyg_uint16 addr,
-			cyg_uint8 *pdata, cyg_uint8  size);
-int mpu6050_i2c_read(cyg_uint8 dev_addr, cyg_uint16 addr,
-			cyg_uint8 *pdata, cyg_uint8  size);
+int mpu6050_i2c_write(cyg_uint8 dev_addr, cyg_uint8 addr,
+			cyg_uint8  size, cyg_uint8 *pdata);
+int mpu6050_i2c_read(cyg_uint8 dev_addr, cyg_uint8 addr,
+			cyg_uint8  size, cyg_uint8 *pdata);
 
 static Cyg_ErrNo mpu6050_write(cyg_io_handle_t handle,
 				const void *buf,
