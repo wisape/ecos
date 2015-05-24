@@ -2686,6 +2686,15 @@ package CYGPKG_DEVS_I2C_CORTEXM_STM32 {
         I2C peripherals in STM32 processors."
 }
 
+package CYGPKG_DEVS_I2C_CORTEXM_STM32_GPIO {
+    alias	{ "STM32 PIO-based bitbanging I2C driver" i2c_stm32_gpio }
+    hardware
+    directory	devs/i2c/cortexm/stm32_gpio
+    script		i2c_stm32_gpio.cdl
+    description "
+    This package provides a PIO-based bitbanging I2C device driver for STM32."
+}
+
 package CYGPKG_DEVS_I2C_FREESCALE_I2C {
     alias        { "Freescale I2C driver" freescale_i2c i2c_freescale kinetis_i2c i2c_kinetis}
     hardware
@@ -7742,7 +7751,7 @@ target wisape_stm32 {
                    CYGPKG_DEVS_FLASH_CORTEXM_MINI_STM32
                    CYGPKG_DEVS_FLASH_SPI_SST25XX
                    CYGPKG_IO_I2C
-		   CYGPKG_DEVS_I2C_CORTEXM_STM32
+		   CYGPKG_DEVS_I2C_CORTEXM_STM32_GPIO
 		   CYGPKG_DEVS_GYRO_I2C_MPU6050
                  }
         description "The wisape_stm32_eval target provides the packages needed
