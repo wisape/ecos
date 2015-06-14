@@ -57,7 +57,8 @@
 #define i2c_write   mpu6050_i2c_write
 #define i2c_read    mpu6050_i2c_read
 #define delay_ms(_n)    hal_delay_us(_n * 1000)
-#define get_ms      get_ms
+//#define get_ms      get_ms
+#define get_ms
 
 //static int reg_int_cb(struct int_param_s *int_param)
 //{

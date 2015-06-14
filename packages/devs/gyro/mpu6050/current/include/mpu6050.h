@@ -56,6 +56,15 @@
 #include <cyg/io/devtab.h>
 #include <cyg/io/i2c.h>
 
+struct mpu6050_data {
+	short gyro[3];
+	short accel[3];
+	long quat[4];
+	float Yaw;
+	float Roll;
+	float Pitch;
+	unsigned long sensor_timestamp;
+};
 
 int mpu6050_i2c_write(cyg_uint8 dev_addr, cyg_uint8 addr,
 			cyg_uint8  size, cyg_uint8 *pdata);

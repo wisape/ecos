@@ -43,7 +43,8 @@
 //#include "msp430.h"
 //#include "msp430_clock.h"
 #define delay_ms    delay_ms
-#define get_ms      get_ms
+//#define get_ms      get_ms
+#define get_ms     
 #define log_e    diag_printf
 #define log_i    diag_printf
 

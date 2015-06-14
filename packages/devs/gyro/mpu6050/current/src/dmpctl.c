@@ -20,6 +20,7 @@
 #define FLASH_SIZE      (512)
 #define FLASH_MEM_START ((void*)0x1800)
 
+#if 0
 #define q30  1073741824.0f
 
 float q0=1.0f,q1=0.0f,q2=0.0f,q3=0.0f;
@@ -28,6 +29,7 @@ short gyro[3], accel[3], sensors;
 unsigned char more;
 long quat[4];
 float Yaw,Roll,Pitch;
+#endif
 
 
 static signed char gyro_orientation[9] = {-1, 0, 0,
@@ -87,8 +89,9 @@ static void run_self_test(void)
         unsigned short accel_sens;
 
 	result = mpu_run_self_test(gyro, accel);
-	if (result != 0x7) {
-		diag_printf("bias has not been modified ......\r\n");
+	//if (result != 0x7) {
+	if (result != 0x3) {
+		diag_printf("bias has not been modified ...... 0x%x\r\n", result);
 		return;
 	}
         /* Test passed. We can trust the gyro data here, so let's push it down
@@ -164,6 +167,7 @@ err:
 	return -1;
 }
 
+#if 0
 void dmp_update(void)
 {
 	dmp_read_fifo(gyro, accel, quat, &sensor_timestamp, &sensors, &more); 
@@ -179,7 +183,12 @@ void dmp_update(void)
 		Roll = atan2(2 * q2 * q3 + 2 * q0 * q1, -2 * q1 * q1 - 2 * q2* q2 + 1)* 57.3; // roll		 
 		Yaw = 	atan2(2*(q1*q2 + q0*q3),q0*q0+q1*q1-q2*q2-q3*q3) * 57.3;
 	}
+
+	diag_printf("accel x = %d, y = %d, z= %d\n", accel[0], accel[1], accel[2]);
+	//diag_printf("gyro x = %d, y = %d, z= %d\n", gyro[0], gyro[1], gyro[2]);
+	//diag_printf("Pitch = %d, Roll = %d, Yaw = %d\n", (int)Pitch, (int)Roll, (int)Yaw);
 }
+#endif
 
 
 
