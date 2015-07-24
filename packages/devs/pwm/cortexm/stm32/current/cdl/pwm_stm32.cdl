@@ -50,16 +50,14 @@
 cdl_package CYGPKG_DEVS_PWM_CORTEXM_STM32 {
     display     "PWM bus driver for STM32 family of CortexM controllers"
     
-    parent      CYGPKG_IO
-    active_if   CYGPKG_IO
-    active_if   CYGPKG_HAL_CORTEXM_STM32 
+    requires   CYGPKG_HAL_CORTEXM_STM32
 
     description " 
            This package provides a generic PWM device driver for the on-chip
            PWM peripherals in STM32 processors."
            
     include_dir cyg/io
-    compile     pwm_stm32.c
+    compile     -library=libextras.a pwm_stm32.c
 
     define_proc {
       puts $::cdl_system_header "#define CYGDAT_DEVS_STM32_PWM_INL <cyg/io/pwm_stm32.inl>"
