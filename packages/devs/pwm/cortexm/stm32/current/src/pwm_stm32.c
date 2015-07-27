@@ -170,11 +170,24 @@ static void init_pwm_timer(void)
 
 static bool stm32_pwm_init(struct cyg_devtab_entry *tab)
 {
+	CYG_ADDRESS base;
 	cyg_uint32 pwm_0, pwm_1, pwm_2, pwm_3;
+	cyg_uint32 rcc;
 
-	/* Enable gpio and pwm timer clock */
-
-	diag_printf("In pwm init func!!\r\n");
+	/* Enable pwm timer and gpio clock */
+	base = CYGHWR_HAL_STM32_RCC;
+	HAL_READ_UINT32 (base + CYGHWR_HAL_STM32_RCC_APB1ENR, rcc);
+	rcc |= BIT_(CYGHWR_HAL_STM32_RCC_APB1ENR_TIM3);
+	HAL_WRITE_UINT32 (base + CYGHWR_HAL_STM32_RCC_APB1ENR, rcc);
+#if defined (CYGHWR_HAL_CORTEXM_STM32_FAMILY_F1)
+	HAL_READ_UINT32 (base + CYGHWR_HAL_STM32_RCC_APB2ENR, rcc);
+	rcc |= BIT_(CYGHWR_HAL_STM32_RCC_APB2ENR_IOPA);
+	rcc |= BIT_(CYGHWR_HAL_STM32_RCC_APB2ENR_IOPB);
+	rcc |= BIT_(CYGHWR_HAL_STM32_RCC_APB2ENR_AFIO);
+	HAL_WRITE_UINT32 (base + CYGHWR_HAL_STM32_RCC_APB2ENR, rcc);
+#elif defined (CYGHWR_HAL_CORTEXM_STM32_FAMILY_HIPERFORMANCE)
+	/* This register exists, but not these bits. */
+#endif
 
 	/* Configure the pwm GPIOs */
 	pwm_0 = CYGHWR_HAL_STM32_GPIO(A, 6, OUT_50MHZ, ALT_PUSHPULL);
@@ -189,5 +202,6 @@ static bool stm32_pwm_init(struct cyg_devtab_entry *tab)
 
 	init_pwm_timer();
 
+	diag_printf("In pwm init func!!\r\n");
 	return true;
 }
