@@ -7744,6 +7744,14 @@ package CYGPKG_DEVS_GYRO_I2C_MPU6050 {
     description "The package provides the gyro mpu6050 driver"
 }
 
+package CYGPKG_DEVS_COMM_SPI_NRF24L01 {
+    alias       {" driver for 2.4G RF NRF24L01"}
+    directory   devs/comm/nrf24l01
+    script      nrf24l01.cdl
+    hardware
+    description "The package provides the rf nrf24l01 driver"
+}
+
 target wisape_stm32 {
         alias { "WISAPE STM32 board" mini_stm32 }
         packages { CYGPKG_HAL_CORTEXM
@@ -7764,6 +7772,7 @@ target wisape_stm32 {
 		   CYGPKG_DEVS_I2C_CORTEXM_STM32_GPIO
 		   CYGPKG_DEVS_GYRO_I2C_MPU6050
 		   CYGPKG_DEVS_PWM_CORTEXM_STM32
+		   CYGPKG_DEVS_COMM_SPI_NRF24L01
                  }
         description "The wisape_stm32_eval target provides the packages needed
         to run eCos on the MINI STM32 board."
