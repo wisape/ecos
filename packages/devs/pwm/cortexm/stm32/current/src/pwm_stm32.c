@@ -53,8 +53,7 @@
 
 #include CYGDAT_DEVS_STM32_PWM_INL
 
-#define MAX_PERIOD		0x200
-#define DEFAULT_CRR		300
+#define DEFAULT_CRR		50
 #define CC1_PWM1_MODE		VALUE_(4, 6)
 #define CC2_PWM1_MODE		VALUE_(12, 6)
 #define CC3_PWM1_MODE		VALUE_(4, 6)
@@ -72,31 +71,42 @@
 #define CC3			VALUE_(8, CCx)
 #define CC4			VALUE_(12, CCx)
 
-
-static Cyg_ErrNo stm32_pwm_write(cyg_io_handle_t handle,
-				const void *buf,
-				cyg_uint32 *len)
-{
-
-	return ENOERR;
-
-}
-
-static Cyg_ErrNo stm32_pwm_read(cyg_io_handle_t handle,
-				void *buf,
-				cyg_uint32 *len)
-{
-	return ENOERR;
-
-}
+cyg_uint32 globle_base;
 
 static Cyg_ErrNo stm32_pwm_set_config(cyg_io_handle_t handle,
 				cyg_uint32 cmd,
 				const void *buf,
 				cyg_uint32 *len)
 {
-	return ENOERR;
+	cyg_uint16 tmp_period;
+	
+	if (*len != sizeof(cyg_uint16))
+		return -EINVAL;
 
+	tmp_period = *(cyg_uint16 *)buf;
+	if (tmp_period > MAX_PERIOD)
+		tmp_period = MAX_PERIOD;
+
+	if (tmp_period < 0)
+		tmp_period = 0;
+	
+	switch (cmd) {
+		case CMD_PWM1:
+			HAL_WRITE_UINT16(globle_base+CYGHWR_HAL_STM32_TIM_CCR1, tmp_period);
+			break;
+		case CMD_PWM2:
+			HAL_WRITE_UINT16(globle_base+CYGHWR_HAL_STM32_TIM_CCR2, tmp_period);
+			break;
+		case CMD_PWM3:
+			HAL_WRITE_UINT16(globle_base+CYGHWR_HAL_STM32_TIM_CCR3, tmp_period);
+			break;
+		case CMD_PWM4:
+			HAL_WRITE_UINT16(globle_base+CYGHWR_HAL_STM32_TIM_CCR4, tmp_period);
+			break;
+		default:
+			return -EINVAL;
+	}
+	return ENOERR;
 }
 
 static Cyg_ErrNo stm32_pwm_get_config(cyg_io_handle_t handle,
@@ -104,8 +114,27 @@ static Cyg_ErrNo stm32_pwm_get_config(cyg_io_handle_t handle,
 				void *buf,
 				cyg_uint32 *len)
 {
-	return ENOERR;
+	cyg_uint16 *tmp_buf = (cyg_uint16 *)buf;
+	if (*len != sizeof(cyg_uint16))
+		return -EINVAL;
 
+	switch (cmd) {
+		case CMD_PWM1:
+			HAL_READ_UINT16(globle_base+CYGHWR_HAL_STM32_TIM_CCR1, tmp_buf);
+			break;
+		case CMD_PWM2:
+			HAL_READ_UINT16(globle_base+CYGHWR_HAL_STM32_TIM_CCR2, tmp_buf);
+			break;
+		case CMD_PWM3:
+			HAL_READ_UINT16(globle_base+CYGHWR_HAL_STM32_TIM_CCR3, tmp_buf);
+			break;
+		case CMD_PWM4:
+			HAL_READ_UINT16(globle_base+CYGHWR_HAL_STM32_TIM_CCR4, tmp_buf);
+			break;
+		default:
+			return -EINVAL;
+	}
+	return ENOERR;
 }
 
 static Cyg_ErrNo stm32_pwm_lookup(struct cyg_devtab_entry **tab,
@@ -165,6 +194,8 @@ static void init_pwm_timer(void)
 	HAL_READ_UINT16(tim_base+CYGHWR_HAL_STM32_TIM_CR1, temp);
 	HAL_WRITE_UINT16(tim_base+CYGHWR_HAL_STM32_TIM_CR1,
 			temp | CYGHWR_HAL_STM32_TIM_CR1_CEN);
+
+	globle_base = tim_base;
 }
 
 

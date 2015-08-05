@@ -55,15 +55,16 @@
 #include <pkgconf/devs_pwm_cortexm_stm32.h>
 #include <cyg/io/devtab.h>
 
-struct stm32_pwm_data {
+#define MAX_PERIOD		0x200
+
+enum cmd {
+	CMD_PWM1,
+	CMD_PWM2,
+	CMD_PWM3,
+	CMD_PWM4,
+	CMD_PWM_ALL
 };
 
-static Cyg_ErrNo stm32_pwm_write(cyg_io_handle_t handle,
-				const void *buf,
-				cyg_uint32 *len);
-static Cyg_ErrNo stm32_pwm_read(cyg_io_handle_t handle,
-				void *buf,
-				cyg_uint32 *len);
 static Cyg_ErrNo stm32_pwm_set_config(cyg_io_handle_t handle,
 				cyg_uint32 cmd,
 				const void *buf,

@@ -52,8 +52,8 @@
 #define CYG_STM32_PWM_INL
 
 DEVIO_TABLE(stm32_pwm_handles,
-	stm32_pwm_write,
-	stm32_pwm_read,
+	NULL,
+	NULL,
 	NULL,
 	stm32_pwm_get_config,
 	stm32_pwm_set_config
