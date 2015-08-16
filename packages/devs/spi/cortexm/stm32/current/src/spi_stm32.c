@@ -345,6 +345,7 @@ static inline void stm32_spi_gpio_cs_setup
 static inline void stm32_spi_chip_select
   (cyg_uint32 gpio_num, cyg_bool assert)
 {
+  CYGHWR_HAL_STM32_GPIO_SET (gpio_num);
   CYGHWR_HAL_STM32_GPIO_OUT( gpio_num, assert ? 0 : 1);
 }
 
@@ -472,7 +473,7 @@ static void spi_transaction_dma
   // time if required.  Note that when ticking the device we do not touch the CS.
   if (!stm32_bus->cs_up && !tick_only) {
     CYGACC_CALL_IF_DELAY_US (stm32_device->tr_bt_udly);
-    stm32_spi_chip_select (stm32_bus->setup->cs_gpio_list[stm32_device->dev_num], true);        
+    stm32_spi_chip_select (stm32_bus->setup->cs_gpio_list[stm32_device->dev_num - 1], true);        
     stm32_bus->cs_up = true;
     CYGACC_CALL_IF_DELAY_US (stm32_device->cs_up_udly);
   }
@@ -523,7 +524,7 @@ static void spi_transaction_dma
   // Deassert the chip select.
   if (drop_cs && !tick_only) {
     CYGACC_CALL_IF_DELAY_US (stm32_device->cs_dw_udly);
-    stm32_spi_chip_select (stm32_bus->setup->cs_gpio_list[stm32_device->dev_num], false);        
+    stm32_spi_chip_select (stm32_bus->setup->cs_gpio_list[stm32_device->dev_num - 1], false);        
     stm32_bus->cs_up = false;
   }     
 }
@@ -713,7 +714,7 @@ static void stm32_transaction_end
   // Ensure that the chip select is deasserted.
   if (stm32_bus->cs_up) {
     CYGACC_CALL_IF_DELAY_US (stm32_device->cs_dw_udly);
-    stm32_spi_chip_select (stm32_bus->setup->cs_gpio_list[stm32_device->dev_num], false);   
+    stm32_spi_chip_select (stm32_bus->setup->cs_gpio_list[stm32_device->dev_num - 1], false);   
     stm32_bus->cs_up = false;
   }     
 
