@@ -50,6 +50,11 @@
 //==========================================================================
 #ifndef CYG_NRF24L01_INL
 #define CYG_NRF24L01_INL
+#include <cyg/io/spi_stm32.h>
+
+CYG_DEVS_SPI_CORTEXM_STM32_DEVICE (
+    nrf24l01_spi_device, 2, 0, false, 0, 0, 1000000, 1, 1, 1
+);
 
 DEVIO_TABLE(nrf24l01_handles,
 	nrf24l01_write,
