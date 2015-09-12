@@ -102,8 +102,12 @@
 #define RX_PW_P5        0x16  //接收数据通道5有效数据宽度(1~32字节),设置为0则非法
 #define FIFO_STATUS     0x17  //FIFO状态寄存器;bit0,RX FIFO寄存器空标志;bit1,RX FIFO满标志;bit2,3,保留
                               //bit4,TX FIFO空标志;bit5,TX FIFO满标志;bit6,1,循环发送上一数据包.0,不循环;
-#define RX_ADR_WIDTH    5   //5字节的地址宽度
-#define RX_PLOAD_WIDTH  32  //20字节的用户数据宽度
+
+/* CONFIG register */
+#define DEFAULT_CFG	0x8
+#define PWR_UP		0x02 //Power up
+#define PRX		0x01 //RX mode
+#define PTX		0x00 //TX mode
 
 #define R_REG(_reg)	(CMD_R_REG | (_reg & 0x1F))
 #define W_REG(_reg)	(CMD_W_REG | (_reg & 0x1F))
@@ -113,10 +117,13 @@
 #define CE_L()     CYGHWR_HAL_STM32_GPIO_OUT(CYGHWR_HAL_STM32_PIN_OUT(C, 0, OPENDRAIN, NONE, AT_LEAST(50)), 0)
 #define CE_H()     CYGHWR_HAL_STM32_GPIO_OUT(CYGHWR_HAL_STM32_PIN_OUT(C, 0, OPENDRAIN, NONE, AT_LEAST(50)), 1)
 
-//const cyg_uint8 RX_ADDRESS[RX_ADR_WIDTH]={0x34,0x43,0x10,0x10,0x01};
+/* Default addresses */
 const cyg_uint8 RX_ADDRESS[RX_ADR_WIDTH]="serv1";
+const cyg_uint8 TX_ADDRESS[TX_ADR_WIDTH]="clie1";
 cyg_handle_t   nrf24l01_interrupt_handle;
 cyg_interrupt  nrf24l01_interrupt;
+
+int first_write;
 
 static void nrf24l01_ce_set(cyg_uint8 val) {
 	if (val)
@@ -172,6 +179,37 @@ static cyg_uint8 nrf24l01_read_packet(cyg_uint8 *rxbuf)
 	return 1;
 }
 
+static cyg_uint8 nrf24l01_write_packet(cyg_uint8 *txbuf)
+{
+	cyg_uint8 tmp_val;
+
+	if (first_write == 1) {
+	nrf24l01_spi_read(STATUS, &tmp_val, 1);
+	//nrf24l01_spi_write(W_REG(STATUS), &tmp_val, 1);
+	if (tmp_val & TX_OK || tmp_val & MAX_TX) {
+		nrf24l01_spi_write(W_REG(STATUS), &tmp_val, 1);
+		nrf24l01_ce_set(0);
+		nrf24l01_spi_write_reg(W_REG(CONFIG), DEFAULT_CFG | PWR_UP | PTX);
+		nrf24l01_spi_write_reg(CMD_FLUSH_TX, 0xff);
+		nrf24l01_spi_write(CMD_W_TX_PAYLOAD, txbuf, RX_PLOAD_WIDTH);
+		diag_printf("!!can write data 0x%x\n", tmp_val);
+		nrf24l01_ce_set(1);
+		return 0;
+	}
+	}else {
+		nrf24l01_ce_set(0);
+		nrf24l01_spi_write_reg(W_REG(CONFIG), DEFAULT_CFG | PWR_UP | PTX);
+		nrf24l01_spi_write_reg(CMD_FLUSH_TX, 0xff);
+		nrf24l01_spi_write(CMD_W_TX_PAYLOAD, txbuf, RX_PLOAD_WIDTH);
+		diag_printf("!!!first read can write data\n");
+		nrf24l01_ce_set(1);
+		first_write = 1;
+		return 0;
+	}
+
+	return 1;
+}
+
 static cyg_uint32 nrf24l01_ISR(cyg_vector_t vector, cyg_addrword_t data)
 {
 	cyg_drv_interrupt_mask(vector);
@@ -190,9 +228,16 @@ static Cyg_ErrNo nrf24l01_write(cyg_io_handle_t handle,
 				const void *buf,
 				cyg_uint32 *len)
 {
+	cyg_uint8 tmp_val;
+	int i;
+
+	if (*len < TX_PLOAD_WIDTH)
+		return ENOMEM;
+
+	if (nrf24l01_write_packet(buf))
+		return EBUSY;
 
 	return ENOERR;
-
 }
 
 static Cyg_ErrNo nrf24l01_read(cyg_io_handle_t handle, void *buf,
@@ -207,7 +252,6 @@ static Cyg_ErrNo nrf24l01_read(cyg_io_handle_t handle, void *buf,
 	if (nrf24l01_read_packet(buf))
 		return EBUSY;
 	return ENOERR;
-
 }
 
 static Cyg_ErrNo nrf24l01_set_config(cyg_io_handle_t handle,
@@ -215,8 +259,30 @@ static Cyg_ErrNo nrf24l01_set_config(cyg_io_handle_t handle,
 				const void *buf,
 				cyg_uint32 *len)
 {
+	switch(cmd) {
+	case S_ADDR:
+		if (*len != RX_ADR_WIDTH)
+			return EINVAL;
+		nrf24l01_ce_set(0);
+		nrf24l01_spi_write(W_REG(RX_ADDR_P1), buf, RX_ADR_WIDTH);
+		nrf24l01_ce_set(1);
+		break;
+	case T_ADDR:
+		if (*len != TX_ADR_WIDTH)
+			return EINVAL;
+		/*RX_ADDR_P0 must be set to the sending addr for auto ack to work.*/
+		nrf24l01_spi_write(W_REG(RX_ADDR_P0), buf, TX_ADR_WIDTH);
+		nrf24l01_spi_write(W_REG(TX_ADDR), buf, TX_ADR_WIDTH);
+		break;
+	case CHN:
+		if (*len != sizeof(cyg_uint8))
+			return EINVAL;
+		nrf24l01_spi_write(W_REG(RF_CH), (cyg_uint8*)buf, *len);
+		break;
+	default:
+		return EINVAL;
+	}
 	return ENOERR;
-
 }
 
 static Cyg_ErrNo nrf24l01_get_config(cyg_io_handle_t handle,
@@ -225,7 +291,6 @@ static Cyg_ErrNo nrf24l01_get_config(cyg_io_handle_t handle,
 				cyg_uint32 *len)
 {
 	return ENOERR;
-
 }
 
 static Cyg_ErrNo nrf24l01_lookup(struct cyg_devtab_entry **tab,
@@ -238,21 +303,32 @@ static Cyg_ErrNo nrf24l01_lookup(struct cyg_devtab_entry **tab,
 	return ENOERR;
 }
 
+static void nrf24l01_config(void)
+{
+	nrf24l01_ce_set(0);
+	nrf24l01_spi_write_reg(W_REG(CONFIG), 0x03);
+	/*RX_ADDR_P0 must be set to the sending addr for auto ack to work.*/
+	nrf24l01_spi_write(W_REG(RX_ADDR_P0), TX_ADDRESS, TX_ADR_WIDTH);
+	nrf24l01_spi_write(W_REG(TX_ADDR), TX_ADDRESS, TX_ADR_WIDTH);
+	nrf24l01_spi_write(W_REG(RX_ADDR_P1), RX_ADDRESS, RX_ADR_WIDTH);
+	nrf24l01_spi_write_reg(W_REG(EN_AA), 0x03);
+	nrf24l01_spi_write_reg(W_REG(EN_RXADDR), 0x03);
+	nrf24l01_spi_write_reg(W_REG(RF_CH), 3);
+	nrf24l01_spi_write_reg(W_REG(RX_PW_P0), RX_PLOAD_WIDTH);
+	nrf24l01_spi_write_reg(W_REG(RX_PW_P1), RX_PLOAD_WIDTH);
+	nrf24l01_spi_write_reg(W_REG(RF_SETUP), 0x0f);
+	/* Default use rx mode */
+	nrf24l01_spi_write_reg(W_REG(CONFIG), DEFAULT_CFG | PWR_UP | PRX);
+	nrf24l01_ce_set(1);
+}
+
 static bool nrf24l01_init(struct cyg_devtab_entry *tab)
 {
 	int i;
 	cyg_uint8 tmp_val;
 
-	nrf24l01_ce_set(0);
-	nrf24l01_spi_write_reg(W_REG(CONFIG), 0x03);
-	nrf24l01_spi_write(W_REG(RX_ADDR_P0), RX_ADDRESS, RX_ADR_WIDTH);
-	nrf24l01_spi_write_reg(W_REG(EN_AA), 0x01);
-	nrf24l01_spi_write_reg(W_REG(EN_RXADDR), 0x01);
-	nrf24l01_spi_write_reg(W_REG(RF_CH), 3);
-	nrf24l01_spi_write_reg(W_REG(RX_PW_P0), RX_PLOAD_WIDTH);
-	nrf24l01_spi_write_reg(W_REG(RF_SETUP), 0x0f);
-	nrf24l01_spi_write_reg(W_REG(CONFIG), 0x0b);
-	nrf24l01_ce_set(1);
+	/* Default config */
+	nrf24l01_config();
 
 	cyg_uint8 add_val[5];
 	for (i = 0; i < 0x18; i++){
@@ -260,6 +336,10 @@ static bool nrf24l01_init(struct cyg_devtab_entry *tab)
 		diag_printf("%x = 0x%x\n", i, tmp_val);
 	}
 	nrf24l01_spi_read(RX_ADDR_P0, &add_val, 5);
+	for (i = 0; i < 5; i++){
+	diag_printf("add%d = 0x%x\n", i, add_val[i]);
+	}
+	nrf24l01_spi_read(RX_ADDR_P1, &add_val, 5);
 	for (i = 0; i < 5; i++){
 	diag_printf("add%d = 0x%x\n", i, add_val[i]);
 	}
@@ -277,20 +357,8 @@ static bool nrf24l01_init(struct cyg_devtab_entry *tab)
 				&nrf24l01_interrupt
 				);
 	cyg_drv_interrupt_attach(nrf24l01_interrupt_handle);
-	cyg_drv_interrupt_unmask(CYGNUM_HAL_INTERRUPT_EXTI0);
-/*
-	cyg_uint32 val;
-	HAL_READ_UINT32( CYGHWR_HAL_STM32_EXTI+CYGHWR_HAL_STM32_EXTI_IMR, val);
-	diag_printf("imr = 0x%x\n", val);
-	HAL_READ_UINT32( CYGHWR_HAL_STM32_EXTI+CYGHWR_HAL_STM32_EXTI_FTSR, val);
-	diag_printf("ftsr = 0x%x\n", val);
-	HAL_READ_UINT32( CYGHWR_HAL_STM32_EXTI+CYGHWR_HAL_STM32_EXTI_RTSR, val);
-	diag_printf("rtsr = 0x%x\n", val);
-	HAL_READ_UINT32(CYGHWR_HAL_STM32_AFIO + CYGHWR_HAL_STM32_AFIO_EXTICR1, val);
-	diag_printf("exticr1 = 0x%x\n", val);
-*/
 
-
+	first_write = 0;
 
 	return true;
 

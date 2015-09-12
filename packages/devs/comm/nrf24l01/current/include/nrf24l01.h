@@ -55,6 +55,15 @@
 #include <pkgconf/devs_comm_spi_nrf24l01.h>
 #include <cyg/io/devtab.h>
 
+#define CHN		24010
+#define S_ADDR		24011
+#define T_ADDR		24012
+
+#define RX_ADR_WIDTH    5   //self address width
+#define TX_ADR_WIDTH    5   //Target address width
+#define RX_PLOAD_WIDTH  32  //MAX 20Bytes user data
+#define TX_PLOAD_WIDTH  32  //MAX 20Bytes user data
+
 struct nrf24l01_data {
 };
 
