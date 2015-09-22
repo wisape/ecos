@@ -123,6 +123,10 @@ const cyg_uint8 TX_ADDRESS[TX_ADR_WIDTH]="clie1";
 cyg_handle_t   nrf24l01_interrupt_handle;
 cyg_interrupt  nrf24l01_interrupt;
 
+cyg_mutex_t	rw_lock;
+cyg_cond_t	r_wait;
+cyg_cond_t	w_wait;
+
 static void nrf24l01_ce_set(cyg_uint8 val) {
 	if (val)
 		CE_H();
@@ -163,16 +167,26 @@ static void nrf24l01_spi_write_reg(cyg_uint8 reg, cyg_uint8 val)
 
 static cyg_uint8 nrf24l01_read_packet(cyg_uint8 *rxbuf)
 {
+	cyg_mutex_lock(&rw_lock);
+
+	cyg_cond_wait(&r_wait);
+
 	nrf24l01_spi_read(CMD_R_RX_PAYLOAD, rxbuf, RX_PLOAD_WIDTH);
 	nrf24l01_spi_write_reg(CMD_FLUSH_RX, 0xff);
 	nrf24l01_spi_write_reg(W_REG(STATUS), RX_OK);
 
 	diag_printf("!!can read data\n");
+
+	cyg_mutex_unlock(&rw_lock);
 	return 0;
 }
 
 static cyg_uint8 nrf24l01_write_packet(cyg_uint8 *txbuf)
 {
+	cyg_uint8 ret;
+
+	cyg_mutex_lock(&rw_lock);
+
 	nrf24l01_ce_set(0);
 	nrf24l01_spi_write_reg(W_REG(CONFIG), DEFAULT_CFG | PWR_UP | PTX);
 	nrf24l01_spi_write_reg(CMD_FLUSH_TX, 0xff);
@@ -180,6 +194,13 @@ static cyg_uint8 nrf24l01_write_packet(cyg_uint8 *txbuf)
 	diag_printf("!!!can write data\n");
 	nrf24l01_ce_set(1);
 
+	ret = cyg_cond_timed_wait(&w_wait, cyg_current_time() + 10);
+	if (ret) {
+		cyg_mutex_unlock(&rw_lock);
+		return ret;
+	}
+
+	cyg_mutex_unlock(&rw_lock);
 	return 0;
 }
 
@@ -200,11 +221,13 @@ static void nrf24l01_DSR(cyg_vector_t vector, cyg_ucount32 count,
 
 	if (val & RX_OK) {
 		diag_printf("Read Data Arrive\n");
+		cyg_cond_signal(&r_wait);
 	}
 
 	if (val & TX_OK) {
 		diag_printf("Write OK\n");
 		nrf24l01_spi_write_reg(W_REG(STATUS), TX_OK);
+		cyg_cond_signal(&w_wait);
 	}
 
 	if (val & MAX_TX) {
@@ -316,6 +339,10 @@ static bool nrf24l01_init(struct cyg_devtab_entry *tab)
 {
 	int i;
 	cyg_uint8 tmp_val;
+
+	cyg_mutex_init(&rw_lock);
+	cyg_cond_init(&r_wait, &rw_lock);
+	cyg_cond_init(&w_wait, &rw_lock);
 
 	/* Default config */
 	nrf24l01_config();
