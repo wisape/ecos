@@ -194,10 +194,11 @@ static cyg_uint8 nrf24l01_write_packet(cyg_uint8 *txbuf)
 	diag_printf("!!!can write data\n");
 	nrf24l01_ce_set(1);
 
-	ret = cyg_cond_timed_wait(&w_wait, cyg_current_time() + 10);
-	if (ret) {
+	ret = cyg_cond_timed_wait(&w_wait, cyg_current_time() + 30);
+	if (!ret) {
+		nrf24l01_spi_write_reg(W_REG(STATUS), TX_OK | MAX_TX);
 		cyg_mutex_unlock(&rw_lock);
-		return ret;
+		return EBUSY;
 	}
 
 	cyg_mutex_unlock(&rw_lock);
@@ -330,6 +331,7 @@ static void nrf24l01_config(void)
 	nrf24l01_spi_write_reg(W_REG(RX_PW_P0), RX_PLOAD_WIDTH);
 	nrf24l01_spi_write_reg(W_REG(RX_PW_P1), RX_PLOAD_WIDTH);
 	nrf24l01_spi_write_reg(W_REG(RF_SETUP), 0x0f);
+	nrf24l01_spi_write_reg(W_REG(STATUS), RX_OK | TX_OK | MAX_TX);
 	/* Default use rx mode */
 	nrf24l01_spi_write_reg(W_REG(CONFIG), DEFAULT_CFG | PWR_UP | PRX);
 	nrf24l01_ce_set(1);
