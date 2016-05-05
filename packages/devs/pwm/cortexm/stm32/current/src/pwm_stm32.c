@@ -233,6 +233,5 @@ static bool stm32_pwm_init(struct cyg_devtab_entry *tab)
 
 	init_pwm_timer();
 
-	diag_printf("In pwm init func!!\r\n");
 	return true;
 }
