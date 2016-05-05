@@ -82,15 +82,14 @@ static  unsigned short inv_orientation_matrix_to_scalar(
 
 static void run_self_test(void)
 {
-	
 	int result;
 	long gyro[3], accel[3];
         float sens;
         unsigned short accel_sens;
 
 	result = mpu_run_self_test(gyro, accel);
-	//if (result != 0x7) {
-	if (result != 0x3) {
+	if (result != 0x7) {
+	//if (result != 0x3) {
 		diag_printf("bias has not been modified ...... 0x%x\r\n", result);
 		return;
 	}
@@ -111,54 +110,60 @@ static void run_self_test(void)
 	return;
 }
 
-int mpu6050_dmp_init(void)
+int mpu_driver_init(int is_dmp)
 {
 	if(mpu_init()) {
 		diag_printf("mpu initialization come across error......\r\n ");
 		goto err;
 	}
 
-	if(mpu_set_sensors(INV_XYZ_GYRO | INV_XYZ_ACCEL)) {
+	if(mpu_set_sensors(INV_XYZ_GYRO | INV_XYZ_ACCEL | INV_XYZ_COMPASS)) {
 		diag_printf("mpu_set_sensor come across error ......\r\n");
 		goto err;
 	}
-	if(mpu_configure_fifo(INV_XYZ_GYRO | INV_XYZ_ACCEL)) {
-		diag_printf("mpu_configure_fifo come across error ......\r\n");
-		goto err;
-	}
-	if(mpu_set_sample_rate(DEFAULT_MPU_HZ)){
-	  	 diag_printf("mpu_set_sample_rate error ......\r\n");
-		goto err;
-	}
 
-	if(dmp_load_motion_driver_firmware()){
-	  	diag_printf("dmp_load_motion_driver_firmware come across error ......\r\n");
-		goto err;
-	}
-	if(dmp_set_orientation(inv_orientation_matrix_to_scalar(gyro_orientation))) {
-		diag_printf("dmp_set_orientation come across error ......\r\n");
-		goto err;
-	}
+	if (!is_dmp) {
+		if(mpu_configure_fifo(INV_XYZ_GYRO | INV_XYZ_ACCEL)) {
+			diag_printf("mpu_configure_fifo come across error ......\r\n");
+			goto err;
+		}
+		if(mpu_set_sample_rate(DEFAULT_MPU_HZ)){
+			 diag_printf("mpu_set_sample_rate error ......\r\n");
+			goto err;
+		}
+	} else {
 
-	if(dmp_enable_feature(DMP_FEATURE_6X_LP_QUAT |
-				DMP_FEATURE_TAP |
-				DMP_FEATURE_ANDROID_ORIENT |
-				DMP_FEATURE_SEND_RAW_ACCEL |
-				DMP_FEATURE_SEND_CAL_GYRO |
-				DMP_FEATURE_GYRO_CAL)) {
-		diag_printf("dmp_enable_feature come across error ......\r\n");
-		goto err;
-	}
-	if(dmp_set_fifo_rate(DEFAULT_MPU_HZ)) {
-		diag_printf("dmp_set_fifo_rate come across error ......\r\n");
-		goto err;
+		if(dmp_load_motion_driver_firmware()){
+			diag_printf("dmp_load_motion_driver_firmware come across error ......\r\n");
+			goto err;
+		}
+		if(dmp_set_orientation(inv_orientation_matrix_to_scalar(gyro_orientation))) {
+			diag_printf("dmp_set_orientation come across error ......\r\n");
+			goto err;
+		}
+
+		if(dmp_enable_feature(DMP_FEATURE_6X_LP_QUAT |
+					DMP_FEATURE_TAP |
+					DMP_FEATURE_ANDROID_ORIENT |
+					DMP_FEATURE_SEND_RAW_ACCEL |
+					DMP_FEATURE_SEND_CAL_GYRO |
+					DMP_FEATURE_GYRO_CAL)) {
+			diag_printf("dmp_enable_feature come across error ......\r\n");
+			goto err;
+		}
+		if(dmp_set_fifo_rate(DEFAULT_MPU_HZ)) {
+			diag_printf("dmp_set_fifo_rate come across error ......\r\n");
+			goto err;
+		}
 	}
 
 	run_self_test();
 
-	if(mpu_set_dmp_state(1)) {
-		diag_printf("mpu_set_dmp_state come across error ......\r\n");
-		goto err;
+	if (is_dmp) {
+		if(mpu_set_dmp_state(1)) {
+			diag_printf("mpu_set_dmp_state come across error ......\r\n");
+			goto err;
+		}
 	}
 
 	return 0;
@@ -174,13 +179,12 @@ void dmp_update(void)
 
 	if (sensors & INV_WXYZ_QUAT )
 	{
-   
 		q0=quat[0] / q30;
 		q1=quat[1] / q30;
 		q2=quat[2] / q30;
 		q3=quat[3] / q30;
 		Pitch  = asin(-2 * q1 * q3 + 2 * q0* q2)* 57.3; // pitch
-		Roll = atan2(2 * q2 * q3 + 2 * q0 * q1, -2 * q1 * q1 - 2 * q2* q2 + 1)* 57.3; // roll		 
+		Roll = atan2(2 * q2 * q3 + 2 * q0 * q1, -2 * q1 * q1 - 2 * q2* q2 + 1)* 57.3; // roll
 		Yaw = 	atan2(2*(q1*q2 + q0*q3),q0*q0+q1*q1-q2*q2-q3*q3) * 57.3;
 	}
 

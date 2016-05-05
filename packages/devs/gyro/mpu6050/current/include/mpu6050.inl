@@ -62,6 +62,7 @@
 );*/
 
 CYG_I2C_STM32_DEVICE(i2c_mpu6050, 0x68);
+CYG_I2C_STM32_DEVICE(i2c_hmc5883, 0x1e);
 
 
 DEVIO_TABLE(mpu6050_handles,

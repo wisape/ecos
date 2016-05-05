@@ -1,4 +1,4 @@
-int mpu6050_dmp_init(void)	;
+int mpu_driver_init(int is_dmp)	;
 void dmp_update(void) ;
 extern float Yaw,Roll,Pitch;
 

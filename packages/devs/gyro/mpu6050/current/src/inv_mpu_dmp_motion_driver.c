@@ -14,65 +14,12 @@
  *      @details    All functions are preceded by the dmp_ prefix to
  *                  differentiate among MPL and general driver function calls.
  */
-/*#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include "IOI2C.h"
-#include "usart.h"
-#include "delay.h"*/
 #include <cyg/infra/cyg_type.h>
 #include <cyg/io/inv_mpu.h>
 #include <cyg/io/inv_mpu_dmp_motion_driver.h>
 #include <cyg/io/dmpKey.h>
 #include <cyg/io/dmpmap.h>
 #include <cyg/io/dmpctl.h>
-
-
-#define  MOTION_DRIVER_TARGET_MSP430
-/* The following functions must be defined for this platform:
- * i2c_write(unsigned char slave_addr, unsigned char reg_addr,
- *      unsigned char length, unsigned char const *data)
- * i2c_read(unsigned char slave_addr, unsigned char reg_addr,
- *      unsigned char length, unsigned char *data)
- * delay_ms(unsigned long num_ms)
- * get_ms(unsigned long *count)
- */
-#if defined MOTION_DRIVER_TARGET_MSP430
-//#include "msp430.h"
-//#include "msp430_clock.h"
-#define delay_ms    delay_ms
-//#define get_ms      get_ms
-#define get_ms     
-#define log_e    diag_printf
-#define log_i    diag_printf
-
-#elif defined EMPL_TARGET_MSP430
-#include "msp430.h"
-#include "msp430_clock.h"
-#include "log.h"
-#define delay_ms    msp430_delay_ms
-#define get_ms      msp430_get_clock_ms
-#define log_i       MPL_LOGI
-#define log_e       MPL_LOGE
-
-#elif defined EMPL_TARGET_UC3L0
-/* Instead of using the standard TWI driver from the ASF library, we're using
- * a TWI driver that follows the slave address + register address convention.
- */
-#include "delay.h"
-#include "sysclk.h"
-#include "log.h"
-#include "uc3l0_clock.h"
-/* delay_ms is a function already defined in ASF. */
-#define get_ms  uc3l0_get_clock_ms
-#define log_i       MPL_LOGI
-#define log_e       MPL_LOGE
-
-#else
-//#error  Gyro driver is missing the system layer implementations.
-#endif
 
 /* These defines are copied from dmpDefaultMPU6050.c in the general MPL
  * releases. These defines may change for each DMP image, so be sure to modify
@@ -492,22 +439,15 @@ struct dmp_s {
     unsigned char packet_length;
 };
 
-//static struct dmp_s dmp = {
-//    .tap_cb = NULL,
-//    .android_orient_cb = NULL,
-//    .orient = 0,
-//    .feature_mask = 0,
-//    .fifo_rate = 0,
-//    .packet_length = 0
-//};
-static struct dmp_s dmp={
-  NULL,
-  NULL,
-  0,
-  0,
-  0,
-  0
+static struct dmp_s dmp = {
+    .tap_cb = NULL,
+    .android_orient_cb = NULL,
+    .orient = 0,
+    .feature_mask = 0,
+    .fifo_rate = 0,
+    .packet_length = 0
 };
+
 /**
  *  @brief  Load the DMP with this image.
  *  @return 0 if successful.

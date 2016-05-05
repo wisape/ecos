@@ -21,6 +21,47 @@
 #ifndef _INV_MPU_H_
 #define _INV_MPU_H_
 
+/********* set for platform **************/
+#define MPU6050
+/* The following functions must be defined for this platform:
+ * i2c_write(unsigned char slave_addr, unsigned char reg_addr,
+ *      unsigned char length, unsigned char const *data)
+ * i2c_read(unsigned char slave_addr, unsigned char reg_addr,
+ *      unsigned char length, unsigned char *data)
+ * delay_ms(unsigned long num_ms)
+ * get_ms(unsigned long *count)
+ * reg_int_cb(void (*cb)(void), unsigned char port, unsigned char pin)
+ * labs(long x)
+ * fabsf(float x)
+ * min(int a, int b)
+ */
+
+#define i2c_write	mpu6050_i2c_write
+#define i2c_read	mpu6050_i2c_read
+#define delay_ms(_n)    hal_delay_us(_n * 1000)
+#define get_ms		ecos_get_ms
+
+//static int reg_int_cb(struct int_param_s *int_param)
+//{
+//    /*return msp430_reg_int_cb(int_param->cb, int_param->pin, int_param->lp_exit,
+//        int_param->active_low);*/
+//		return 0;
+//}
+#define log_e    diag_printf
+#define log_i    diag_printf
+/* labs is already defined by TI's toolchain. */
+/* fabs is for doubles. fabsf is for floats. */
+#define fabs        fabsf
+#define min(a,b) ((a<b)?a:b)
+
+static int ecos_get_ms(unsigned long *timestamp)
+{
+   *timestamp = cyg_current_time();
+    return 0;
+}
+
+/******* set for platform end *********/
+
 #define INV_X_GYRO      (0x40)
 #define INV_Y_GYRO      (0x20)
 #define INV_Z_GYRO      (0x10)
