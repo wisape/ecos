@@ -191,7 +191,6 @@ static cyg_uint8 nrf24l01_write_packet(cyg_uint8 *txbuf)
 	nrf24l01_spi_write_reg(W_REG(CONFIG), DEFAULT_CFG | PWR_UP | PTX);
 	nrf24l01_spi_write_reg(CMD_FLUSH_TX, 0xff);
 	nrf24l01_spi_write(CMD_W_TX_PAYLOAD, txbuf, RX_PLOAD_WIDTH);
-	diag_printf("!!!can write data\n");
 	nrf24l01_ce_set(1);
 
 	ret = cyg_cond_timed_wait(&w_wait, cyg_current_time() + 30);
@@ -208,7 +207,6 @@ static cyg_uint8 nrf24l01_write_packet(cyg_uint8 *txbuf)
 static cyg_uint32 nrf24l01_ISR(cyg_vector_t vector, cyg_addrword_t data)
 {
 	cyg_drv_interrupt_mask(vector);
-	diag_printf("!!! in nrf24l01_ISR\n");
 	cyg_drv_interrupt_acknowledge(vector);
 	return (CYG_ISR_CALL_DSR | CYG_ISR_HANDLED);
 }
@@ -313,7 +311,6 @@ static Cyg_ErrNo nrf24l01_lookup(struct cyg_devtab_entry **tab,
 				const char *name)
 {
 	cyg_drv_interrupt_unmask(CYGNUM_HAL_INTERRUPT_EXTI0);
-	diag_printf("!! in nrf lookup\n");
 	return ENOERR;
 }
 
@@ -348,20 +345,6 @@ static bool nrf24l01_init(struct cyg_devtab_entry *tab)
 
 	/* Default config */
 	nrf24l01_config();
-
-	cyg_uint8 add_val[5];
-	for (i = 0; i < 0x18; i++){
-		nrf24l01_spi_read(i, &tmp_val, 1);
-		diag_printf("%x = 0x%x\n", i, tmp_val);
-	}
-	nrf24l01_spi_read(RX_ADDR_P0, &add_val, 5);
-	for (i = 0; i < 5; i++){
-	diag_printf("add%d = 0x%x\n", i, add_val[i]);
-	}
-	nrf24l01_spi_read(RX_ADDR_P1, &add_val, 5);
-	for (i = 0; i < 5; i++){
-	diag_printf("add%d = 0x%x\n", i, add_val[i]);
-	}
 
 	CYGHWR_HAL_STM32_GPIO_SET(CYGHWR_HAL_STM32_PIN_IN(A, 0, FLOATING));
 	cyg_drv_interrupt_configure(CYGNUM_HAL_INTERRUPT_EXTI0, 0, 0);
